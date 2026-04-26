@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mister-flame/zoryx-lavalink.git"
+    "url": "https://github.com/mister-flame/zoryx-lavalink.git"
   },
   "license": "ISC",
   "author": "MR.Flame",
