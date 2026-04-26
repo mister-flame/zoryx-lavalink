@@ -10,11 +10,13 @@ module.exports = {
     name: "messageCreate",
     async execute(client, message) {
 
+        if (!message.content.startsWith(prefix)) return;
+
         if (message.author.bot || !message.guild) return;
         const args = message.content.trim().split(/\s+/);
         const command = args.shift().toLowerCase();
 
-        let player = null;
+        let player = await getPlayer(client, message.guild.id);
         let track;
 
         switch (command) {
@@ -29,8 +31,6 @@ module.exports = {
                     .setDescription(`**Latence du bot :** \`${latency / 1000}s (${latency}ms)\`\n**Latence API :** \`${apiLatency / 1000}s (${apiLatency}ms)\``)
                     .setFooter({ text: `Demandé par ${message.author.username}`, iconURL: message.author.displayAvatarURL() })
                     .setTimestamp();
-
-                player = await getPlayer(client, message.guild.id);
 
                 if (player) {
                     pingEmbed.addFields({ name: "🎵 Lavalink Ping :", value: `\`${player.ping.ws / 1000}s (${player.ping.ws}ms)\`` });
@@ -79,8 +79,6 @@ module.exports = {
 
                 const channel = message.member.voice.channel;
                 if (!channel) return message.reply('🔊 Rejoins un salon vocal.');
-
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) {
 
@@ -138,9 +136,8 @@ module.exports = {
                 return message.channel.send({ embeds: [addSong] });
 
             case prefix + 'skip':
-                player = await getPlayer(client, message.guild.id);
 
-                if (!player)  return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
                 if (player.repeatMode === "track" || (player.repeatMode === "queue" && player.queue.tracks.length === 0)) {
                     message.reply('🔂 Boucle activée, je relance le morceau.');
@@ -152,7 +149,6 @@ module.exports = {
                 return message.reply(`${args[0] ? `🔂 Je passe au morceau \`${parseInt(args[0])}\`` : '⏭️ Morceau suivant.'}`);
 
             case prefix + 'stop':
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
@@ -161,7 +157,6 @@ module.exports = {
                 return message.reply('⏹️ Lecture arrêtée.');
 
             case prefix + 'leave':
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
@@ -175,8 +170,6 @@ module.exports = {
                 return;
 
             case prefix + 'loop':
-
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
@@ -201,7 +194,6 @@ module.exports = {
                 return message.reply(`${emojiRepeat} Mode boucle définit sur le mode : \`${player.repeatMode}\`.`);
 
             case prefix + 'queue':
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
@@ -253,7 +245,6 @@ module.exports = {
                 return;
 
             case prefix + 'replay':
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
@@ -261,7 +252,6 @@ module.exports = {
                 return message.reply('🔂 Je relance le morceau en cours.');
 
             case prefix + 'nowplaying':
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
@@ -287,7 +277,6 @@ module.exports = {
                 return message.reply({ embeds: [nowPlayingEmbed] });
 
             case prefix + 'shuffle':
-                player = await getPlayer(client, message.guild.id);
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
