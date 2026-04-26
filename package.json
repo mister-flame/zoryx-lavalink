@@ -1,20 +1,32 @@
 {
-  "name": "lavalink-bot-test",
+  "name": "zoryx-lavalink",
   "version": "1.0.0",
-  "description": "A simple test of discord bot which uses a lavalink player to play songs",
+  "description": "A small french discord bot written in JS with NodeJS that can create temporary channels and more importantly, which can play songs in voice channels.",
+  "keywords": [
+    "nodejs",
+    "javascript",
+    "bot",
+    "discord",
+    "youtube",
+    "js",
+    "french",
+    "lavalink"
+  ],
+  "homepage": "https://github.com/mister-flame/zoryx-lavalink",
+  "bugs": {
+    "url": "https://github.com/mister-flame/zoryx-lavalink/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mister-flame/zoryx-lavalink.git"
+  },
+  "license": "ISC",
+  "author": "MR.Flame",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "Bot",
-    "Music",
-    "Lavalink",
-    "Discord",
-    "Songs"
-  ],
-  "author": "MR.Flame",
-  "license": "ISC",
   "dependencies": {
     "@discordjs/voice": "^0.19.0",
     "axios": "^1.13.6",

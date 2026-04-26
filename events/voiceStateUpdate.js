@@ -38,6 +38,12 @@ module.exports = {
                 reason: `Temp channel of ${newstate.member.user.username} (${newstate.member.user.id})`,
                 type: ChannelType.GuildVoice,
                 parent: newstate.channel.parent,
+                permissionOverwrites: [
+                  {
+                    id: newstate.member.user.id,
+                    allow: [PermissionsBitField.Flags.ManageChannels],
+                  }
+                ]
               })
               .catch((error) => {
                 console.error(error);
@@ -48,12 +54,6 @@ module.exports = {
             newstate.member.voice.setChannel(newChannel).catch((error) => {
               console.error(error);
             });
-            newChannel.permissionOverwrites.set([
-              {
-                id: newstate.member.user.id,
-                allow: [PermissionsBitField.Flags.ManageChannels],
-              },
-            ]);
             dbTempChannels.close((err) => {
               if (err) {
                 console.error(
