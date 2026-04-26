@@ -2,6 +2,12 @@
 
 ## Reporting a Vulnerability
 
-In order to report vulnerabilities, please use the "issues" part of the repository.
-Also please be precise (nodejs version and more information if you can) while you're reporting issues.
-Finally, the time required to patch some issues will depend of my availability. But I'll try to be fast as possible.
+If you discover a security issue, please report it by opening an issue in this repository.
+
+When reporting a vulnerability, include as much useful information as possible, such as:
+- Node.js version
+- Reproduction steps
+- Error messages or logs
+- Your environment details
+
+I will review reports as quickly as possible, but patch timelines may vary depending on availability.
