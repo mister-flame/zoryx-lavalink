@@ -11,7 +11,11 @@ const { connectDB } = require("./connectDatabase");
 
 module.exports.deleteTmpChannel = async function deleteTmpChannel(channelId, channel = null) {
 
+    // Connect to the database and store the connection in a variable
+
     let dbTemp = await connectDB();
+
+    // Query the database to delete the entry corresponding to the specified channel ID
 
     query = `DELETE FROM tempChannel WHERE channelId = ${channelId};`;
     dbTemp.run(query, function (err) {

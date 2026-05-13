@@ -25,32 +25,32 @@ module.exports.getBestThumbnail = async function getBestThumbnail(videoId) {
 
     try {
 
-    for (const q of qualities) {
-        const url = `https://img.youtube.com/vi/${videoId}/${q}.jpg`;
+        for (const q of qualities) {
+            const url = `https://img.youtube.com/vi/${videoId}/${q}.jpg`;
 
-        const res = await p({
-            url,
-            method: "GET",
-            headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
+            const res = await p({
+                url,
+                method: "GET",
+                headers: {
+                    "User-Agent":
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
+                }
+            }).catch((err) => {
+                // If it's an HTTP error response (like 404), continue to next quality
+                if (err.response && err.response.status) {
+                    return null; // Return null for HTTP errors so loop continues
+                }
+                // For actual network errors, log and throw
+                console.error(`Error fetching thumbnail for video ID ${videoId} at quality ${q}:`, err);
+                return null;
+            });
+
+            // Return the URL of the thumbnail if the response status code is 200 (OK), indicating that the thumbnail exists
+
+            if (res && res.statusCode === 200) {
+                return url;
             }
-        }).catch((err) => {
-            // If it's an HTTP error response (like 404), continue to next quality
-            if (err.response && err.response.status) {
-                return null; // Return null for HTTP errors so loop continues
-            }
-            // For actual network errors, log and throw
-            console.error(`Error fetching thumbnail for video ID ${videoId} at quality ${q}:`, err);
-            return null;
-        });
-
-        // Return the URL of the thumbnail if the response status code is 200 (OK), indicating that the thumbnail exists
-
-        if (res && res.statusCode === 200) {
-            return url;
         }
-    }
 
     } catch (error) {
         console.error(`Error while checking thumbnails for video ID ${videoId}:`, error);

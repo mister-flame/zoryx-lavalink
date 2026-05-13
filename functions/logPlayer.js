@@ -6,6 +6,9 @@
 */
 
 module.exports.logPlayer = async function logPlayer(client, player) {
+
+    // Log the player information in a structured format, including its position, creation timestamp, playing status, volume, guild information, repeat mode, voice channel, and current track info if available
+
     console.log("-".repeat(38) + " Player Log " + "-".repeat(54));
     console.group("Player Event");
     console.log(`| Player Position: ${player.position}`);

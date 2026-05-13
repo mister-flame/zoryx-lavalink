@@ -10,7 +10,11 @@ const { connectDB } = require("./connectDatabase");
 
 module.exports.getChannelsCount = async function getChannelsCount() {
 
+    // Connect to the database and store the connection in a variable
+
     let dbTemp = await connectDB();
+
+    // Query the database to get the count of distinct channels and return it as a promise
 
     return new Promise((resolve, reject) => {
         dbTemp.all("SELECT DISTINCT * FROM tempChannel;", (err, rows) => {

@@ -6,6 +6,12 @@
 */
 
 module.exports.getPlayer = async function getPlayer(client, guildId) {
+
+    // Get the player for the specified guild ID from the Lavalink client
+
     const player = client.lavalink.players.get(guildId);
+
+    // Check if the player exists and if there is a current track. If not, send an error message to the channel and return void
+
     return typeof (player) != "undefined" ? player : null;
 };

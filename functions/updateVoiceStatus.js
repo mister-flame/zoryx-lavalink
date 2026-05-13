@@ -8,5 +8,8 @@ const {token} = require("../util/config")
  */
 
 module.exports.updateVoiceStatus = async function updateVoiceStatus(channelId, status = '') {
+
+    // Make a PUT request to the Discord API to update the voice status of the specified channel with the provided status, using the bot token for authorization
+
     await axios.put(`https://discord.com/api/v10/channels/${channelId}/voice-status`, { status: status.length > 0 ? status : '' }, { headers: { Authorization: `Bot ${token}` } });
 };

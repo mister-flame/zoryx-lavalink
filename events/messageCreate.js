@@ -100,6 +100,13 @@ module.exports = {
                     message.channel.send({ embeds: [newPlayer] });
                 }
 
+                // Verify that the Lavalink node is connected before attempting to search for the track, and if not, attempt to reconnect the node and player before searching again
+
+                const node = player.node;
+                if (!node || !node.connected) {
+                    await node.connect();
+                }
+
                 if (!player.connected) await player.connect();
 
                 const result = await player.search({

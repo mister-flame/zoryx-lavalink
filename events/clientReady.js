@@ -58,6 +58,11 @@ module.exports = {
             console.log(`Stats de ${node.options.id} :`, stats);
         });
 
+        client.lavalink.on("nodeDisconnect", (node) => {
+            console.log(`Node ${node.options.id} disconnected! Reconnecting...`);
+            node.connect();
+        });
+
         // Attempt to initialize the LavalinkManager and catch any errors that occur during initialization
 
         try {
@@ -122,6 +127,16 @@ module.exports = {
         } catch (error) {
             console.error(error);
         }
+
+        setInterval(() => {
+            lavalink.nodes.forEach((node) => {
+                if (node.connected) {
+                    node.rest.get("/version")
+                        .then(() => console.log(`[Lavalink] Ping réussi pour ${node.options.identifier}`))
+                        .catch((err) => console.error(`[Lavalink] Ping échoué : ${err.message}`));
+                }
+            });
+        }, 60 * 60 * 1000); // Ping every hour
 
         try {
             deleteTmpChannels(client);

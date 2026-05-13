@@ -12,7 +12,13 @@ const { deleteTmpChannel } = require("./deleteTmpChannel");
  */
 
 module.exports.deleteTmpChannels = async function deleteTmpChannels(client) {
+
+    // Connect to the database and store the connection in a variable
+
     const dbTemp = await connectDB();
+
+
+    // Query the database to select all entries from the tempChannel table and iterate through the results. For each entry, it attempts to fetch the corresponding channel from the Discord client. If the channel cannot be fetched (e.g., it has been deleted), it logs the error and deletes the entry from the database. If the channel is successfully fetched and has no members, it also deletes the entry from the database and deletes the channel from Discord.
 
     let query = "SELECT * FROM tempChannel;"
     dbTemp.all(query, async (err, rows) => {
