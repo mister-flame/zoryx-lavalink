@@ -54,6 +54,7 @@ module.exports = {
                     \`${prefix}help\` - Affiche ce message d'aide.\n
                     \`${prefix}replay\` - Relance le morceau en cours.\n
                     \`${prefix}nowplaying\` - Affiche la musique en cours de lecture.\n
+                    \`${prefix}seek <durée>\` - Se déplace à une position spécifique dans la musique (ex: \`1m30s\`, \`90s\`, etc. ou \`1:00\`, \`1:00:00\`, etc.).\n
                     Amuse-toi bien ! 🎶`)
                     .setFooter({ text: `Demandé par ${message.author.username}`, iconURL: message.author.displayAvatarURL() })
                     .setTimestamp();
