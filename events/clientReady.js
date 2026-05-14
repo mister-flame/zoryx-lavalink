@@ -139,7 +139,7 @@ module.exports = {
             client.lavalink.nodeManager.nodes.forEach((node) => {
                 if (node.connected) {
                     if (node.heartBeatPing != -1) {
-                        console.log(`[Lavalink] Node ${node.id} is healthy with a heartbeat ping of ${node.heartBeatPing}ms.`);
+                        console.log(`[Lavalink] Node ${node.id} is healthy with a heartbeat ping of ${node.heartBeatPing.toFixed(2)}ms.`);
                     } else {
                         console.warn(`[Lavalink] Node ${node.id} is connected but has an invalid heartbeat ping. Attempting to reconnect...`);
                         node.connect().catch((err) => console.error(`[Lavalink] Error reconnecting: ${err.message}`));
