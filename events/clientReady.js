@@ -129,14 +129,21 @@ module.exports = {
         }
 
         setInterval(() => {
-            lavalink.nodes.forEach((node) => {
+            client.lavalink.nodeManager.nodes.forEach((node) => {
+                console.log(node);
                 if (node.connected) {
-                    node.rest.get("/version")
-                        .then(() => console.log(`[Lavalink] Ping réussi pour ${node.options.identifier}`))
-                        .catch((err) => console.error(`[Lavalink] Ping échoué : ${err.message}`));
+                    if (node.heartBeatPing != -1) {
+                        console.log(`[Lavalink] Node ${node.id} is healthy with a heartbeat ping of ${node.heartBeatPing}ms.`);
+                    } else {
+                        console.warn(`[Lavalink] Node ${node.id} is connected but has an invalid heartbeat ping. Attempting to reconnect...`);
+                        node.connect().catch((err) => console.error(`[Lavalink] Error reconnecting: ${err.message}`));
+                    }
+                } else {
+                    console.warn(`[Lavalink] Node ${node.id} is not connected. Attempting to reconnect...`);
+                    node.connect().catch((err) => console.error(`[Lavalink] Error reconnecting: ${err.message}`));
                 }
             });
-        }, 60 * 60 * 1000); // Ping every hour
+        }, 1 * 60 * 60 * 1000); // Ping every hour
 
         try {
             deleteTmpChannels(client);
