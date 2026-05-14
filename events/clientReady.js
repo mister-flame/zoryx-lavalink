@@ -26,8 +26,10 @@ module.exports = {
 
         client.lavalink = new LavalinkManager({
             nodes: [node],
-            sendToShard: (guildId, payload) =>
-                client.guilds.cache.get(guildId)?.shard?.send(payload),
+            sendToShard: (guildId, payload) => {
+                const guild = client.guilds.cache.get(guildId);
+                if (guild) guild.shard.send(payload);
+            },
             client: { id: client.user.id, username: client.user.username },
             autoSkip: true,
             playerOptions: {
