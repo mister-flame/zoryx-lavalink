@@ -5,6 +5,7 @@ const { getBestThumbnail } = require("../functions/getBestThumbnail");
 const { formatDuration } = require("../functions/formatDuration");
 const { updateVoiceStatus } = require("../functions/updateVoiceStatus");
 const { LavalinkManager } = require("lavalink-client");
+const ms = require("ms");
 
 module.exports = {
     name: "messageCreate",
@@ -129,7 +130,8 @@ module.exports = {
                 player.queue.add(track);
 
                 if (!player.playing) {
-                    return player.play();
+                    await player.play();
+                    return;
                 }
 
                 const addSong = new EmbedBuilder()
@@ -255,7 +257,7 @@ module.exports = {
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
-                player.play(player.queue.current);
+                await player.play(player.queue.current);
                 return message.reply('🔂 Je relance le morceau en cours.');
 
             case prefix + 'nowplaying':
@@ -290,6 +292,38 @@ module.exports = {
                 if ((player.queue.tracks.length + 1) <= 2) return message.reply('❌ Il doit y avoir au moins 2 morceaux dans la file d\'attente pour mélanger.');
                 player.queue.shuffle();
                 return message.reply('🔀 La file d\'attente a été mélangée.');
+
+            case prefix + 'seek':
+
+                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+
+                track = player.queue.current;
+
+                if (track.info.isStream == true) return message.reply('❌ Impossible de seek une musique en stream.');
+
+                let time = ms(args[0]);
+
+                if (!time && time != 0) {
+                    if (args[0].includes(":")) {
+                        const timeParts = args[0].split(":").map(part => parseInt(part));
+                        if (timeParts.some(isNaN)) return message.reply('❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.');
+                        if (timeParts.length > 3) return message.reply('❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.');
+                        time = 0;
+                        for (let i = timeParts.length - 1; i >= 0; i--) {
+                            time += timeParts[i] * Math.pow(60, timeParts.length - 1 - i) * 1000;
+                        }
+                    } else {
+                        return message.reply('❌ Précise une durée valide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.');
+                    }
+                }
+
+                if (isNaN(time)) return message.reply('❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc.');
+
+                if (time < 0 || time > track.info.duration) return message.reply(`❌ La durée doit être comprise entre \`0\` et \`${(await formatDuration(track.info.duration)).join(":")}\`.`);
+
+                await player.seek(time);
+
+                return message.reply(`⏩ Je me déplace à \`${((await formatDuration(time)).join(":"))}\` dans la musique.`);
 
             default:
                 return;
