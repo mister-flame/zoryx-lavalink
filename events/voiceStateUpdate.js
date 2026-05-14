@@ -5,12 +5,23 @@ const {
 
 const { connectDB } = require("../functions/connectDatabase");
 const { deleteTmpChannel } = require("../functions/deleteTmpChannel");
+const { getPlayer } = require("../functions/getPlayer");
 
 let query = null;
 
 module.exports = {
   name: "voiceStateUpdate",
   async execute(client, oldstate, newstate) {
+
+    if (oldstate.channelId === newstate.channelId) return;
+
+    if (oldstate.channelId != null && newstate.channelId === null && oldstate.member.user.id === client.user.id) {
+      const player = await getPlayer(client, oldstate.guild.id);
+
+      if (player) {
+        player.destroy();
+      }
+    }
 
     if (newstate.channel !== null) {
       const dbMainChannels = await connectDB();
