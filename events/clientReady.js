@@ -149,7 +149,7 @@ module.exports = {
                     node.connect().catch((err) => console.error(`[Lavalink] Error reconnecting: ${err.message}`));
                 }
             });
-        }, 1 * 60 * 60 * 1000); // Ping every hour
+        },  30 * 1000); // Ping every hour
 
         try {
             deleteTmpChannels(client);
