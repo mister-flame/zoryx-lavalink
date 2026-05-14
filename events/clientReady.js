@@ -130,7 +130,6 @@ module.exports = {
 
         setInterval(() => {
             client.lavalink.nodeManager.nodes.forEach((node) => {
-                console.log(node);
                 if (node.connected) {
                     if (node.heartBeatPing != -1) {
                         console.log(`[Lavalink] Node ${node.id} is healthy with a heartbeat ping of ${node.heartBeatPing}ms.`);
