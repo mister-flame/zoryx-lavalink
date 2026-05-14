@@ -149,7 +149,9 @@ module.exports = {
                     node.connect().catch((err) => console.error(`[Lavalink] Error reconnecting: ${err.message}`));
                 }
             });
-        },  30 * 1000); // Ping every hour
+        },  30 * 1000); // Ping every 30 seconds
+
+        // Attempt to delete any temporary voice channels that may have been left over from previous sessions and catch any errors that occur during the deletion process
 
         try {
             deleteTmpChannels(client);
