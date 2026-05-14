@@ -52,17 +52,22 @@ module.exports = {
             console.error(`❌ Erreur sur node ${node.options.id} :`, err);
         });
 
-        client.lavalink.on("error", (err) => {
-            console.error("Erreur Lavalink Manager :", err);
+        client.lavalink.on("nodeError", (node, error) => {
+            console.error(`[Lavalink] ❌ Erreur sur le node ${node.options.identifier} :`, error);
+            node.connect().catch(console.error);
         });
 
         client.lavalink.on("nodeStats", (node, stats) => {
-            console.log(`Stats de ${node.options.id} :`, stats);
+            console.log(`📊 Stats de ${node.options.id} :`, stats);
         });
 
         client.lavalink.on("nodeDisconnect", (node) => {
-            console.log(`Node ${node.options.id} disconnected! Reconnecting...`);
-            node.connect();
+            console.log(`[Lavalink] ⚠️ Node ${node.options.identifier} déconnecté (code: ${node.socket._closeCode})`);
+            setTimeout(() => {
+                node.connect().catch((err) => {
+                    console.error(`[Lavalink] ❌ Échec de reconnexion : ${err.message}`);
+                });
+            }, 1000);
         });
 
         // Attempt to initialize the LavalinkManager and catch any errors that occur during initialization
