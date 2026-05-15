@@ -1,6 +1,6 @@
 ﻿# Zoryx Lavalink Bot
 
-A French Discord music bot built with `discord.js`, `lavalink-client`, `erela.js`, and SQLite. It plays music via Lavalink and automatically manages temporary voice channels.
+A French Discord music bot built with `discord.js`, `lavalink-client`, and SQLite. It plays music via Lavalink and automatically manages temporary voice channels.
 
 ## Features
 
