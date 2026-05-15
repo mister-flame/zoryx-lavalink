@@ -278,6 +278,8 @@ module.exports = {
 
                 track = player.queue.current;
 
+                if (!track) return message.reply('❌ Aucun morceau en cours.');
+
                 const currentTime = Date.now() - track.info.startedPlaying;
                 const totalTime = track.info.duration;
                 const progress = Math.floor((currentTime / totalTime) * 20);
