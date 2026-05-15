@@ -24,17 +24,32 @@ module.exports = {
             case prefix + 'ping':
 
                 const latency = Date.now() - message.createdTimestamp;
+
+                let averageNodeLatency = 0;
+
+                client.lavalink.nodeManager.nodes.forEach(node => {
+                    if (node.connected) {
+                        if (node.heartbeatLatency && !isNaN(node.heartbeatLatency) && node.heartbeatLatency >= 0) {
+                            averageNodeLatency += node.heartbeatLatency;
+                        }
+                    }
+                });
+
+                averageNodeLatency = averageNodeLatency / client.lavalink.nodeManager.nodes.size;
+
+                console.log(averageNodeLatency);
+
                 const apiLatency = client.ws.ping;
 
                 const pingEmbed = new EmbedBuilder()
                     .setColor(COLOR_EMBED)
                     .setTitle("🏓 Pong !")
-                    .setDescription(`**Latence du bot :** \`${latency / 1000}s (${latency}ms)\`\n**Latence API :** \`${apiLatency / 1000}s (${apiLatency}ms)\``)
+                    .setDescription(`**Latence du bot :** \`${latency / 1000}s (${latency}ms)\`\n**Latence API :** \`${apiLatency / 1000}s (${apiLatency}ms)\`\n**Latence du Serveur Lavalink :** \`${averageNodeLatency < 0 || isNaN(averageNodeLatency) ? "N/A (pas de node connecté)" : `${averageNodeLatency.toFixed(2)}ms`}\``)
                     .setFooter({ text: `Demandé par ${message.author.username}`, iconURL: message.author.displayAvatarURL() })
                     .setTimestamp();
 
                 if (player) {
-                    pingEmbed.addFields({ name: "🎵 Lavalink Ping :", value: `\`${player.ping.ws / 1000}s (${player.ping.ws}ms)\`` });
+                    pingEmbed.addFields({ name: "🎵 Player Ping :", value: `\`${player.ping.ws / 1000}s (${player.ping.ws}ms)\`` });
                 }
 
                 return message.reply({ embeds: [pingEmbed] });
