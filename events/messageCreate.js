@@ -37,14 +37,12 @@ module.exports = {
 
                 averageNodeLatency = averageNodeLatency / client.lavalink.nodeManager.nodes.size;
 
-                console.log(averageNodeLatency);
-
                 const apiLatency = client.ws.ping;
 
                 const pingEmbed = new EmbedBuilder()
                     .setColor(COLOR_EMBED)
                     .setTitle("🏓 Pong !")
-                    .setDescription(`**Latence du bot :** \`${latency / 1000}s (${latency}ms)\`\n**Latence API :** \`${apiLatency / 1000}s (${apiLatency}ms)\`\n**Latence du Serveur Lavalink :** \`${averageNodeLatency < 0 || isNaN(averageNodeLatency) ? "N/A (pas de node connecté)" : `${averageNodeLatency.toFixed(2)}ms`}\``)
+                    .setDescription(`**Latence du bot :** \`${latency / 1000}s (${latency}ms)\`\n**Latence API :** \`${apiLatency / 1000}s (${apiLatency}ms)\`\n**Latence avec le Serveur Lavalink :** \`${averageNodeLatency < 0 || isNaN(averageNodeLatency) ? "N/A (pas de node connecté)" : `${averageNodeLatency.toFixed(2)}ms`}\``)
                     .setFooter({ text: `Demandé par ${message.author.username}`, iconURL: message.author.displayAvatarURL() })
                     .setTimestamp();
 
@@ -110,7 +108,7 @@ module.exports = {
                     });
 
                     const newPlayer = new EmbedBuilder()
-                        .setDescription(`Un nouveau player a été créé pour ce serveur\n(dans le salon vocal <#${channel.id}>)`)
+                        .setDescription(`Un nouveau player a été créé pour ce serveur\n(pour le salon vocal <#${channel.id}>)`)
                         .setColor(COLOR_EMBED)
                         .setTimestamp();
 
@@ -235,8 +233,6 @@ module.exports = {
                         let track = player.queue.tracks[i];
                         totalDuration += track.info.duration
 
-                        console.log(totalDuration)
-
                         if (i <= 10) {
                             queue = queue + `${i + 2}. [${track.info.title}](<${track.info.uri}>) \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\`\n`;
                         }
@@ -282,7 +278,7 @@ module.exports = {
 
                 track = player.queue.current;
 
-                const currentTime = Date.now() - player.queue.current.info.startedPlaying;
+                const currentTime = Date.now() - track.info.startedPlaying;
                 const totalTime = track.info.duration;
                 const progress = Math.floor((currentTime / totalTime) * 20);
 
@@ -337,6 +333,7 @@ module.exports = {
 
                 if (time < 0 || time > track.info.duration) return message.reply(`❌ La durée doit être comprise entre \`0\` et \`${(await formatDuration(track.info.duration)).join(":")}\`.`);
 
+                track.info.startedPlaying = Date.now() - time;
                 await player.seek(time);
 
                 return message.reply(`⏩ Je me déplace à \`${((await formatDuration(time)).join(":"))}\` dans la musique.`);
