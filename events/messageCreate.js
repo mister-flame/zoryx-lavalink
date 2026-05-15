@@ -331,7 +331,7 @@ module.exports = {
 
                 if (player.queue.tracks.length < 3) return message.reply('❌ Il doit y avoir au moins 3 morceaux dans la file d\'attente pour mélanger. (Morceau en cours non compris)');
                 player.queue.shuffle();
-                return message.reply(`🔀 ${player.queue.tracks.length} morceaux mélangés.`);
+                return message.reply(`🔀 \`${player.queue.tracks.length}\` morceaux mélangés.`);
 
             case prefix + 'seek':
 

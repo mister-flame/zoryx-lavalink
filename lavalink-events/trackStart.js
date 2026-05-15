@@ -39,19 +39,24 @@ module.exports = {
 
         // Create an embed message to show the currently playing track
 
+        let loopState = "❌";
+
+        if (player.repeatMode === "queue") loopState = "🔁";
+
         const playingEmbed = new EmbedBuilder()
             .setColor(COLOR_EMBED)
             .setTitle("🎶 Lecture en cours de :")
             .setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``)
             .setImage(track.info.artworkUrl)
-            .setFooter({ text: `Demandé par ${track.info.requester.username}`, iconURL: track.info.requester.displayAvatarURL() })
+            .setFooter({ text: `Demandé par ${track.info.requester.username} • Loop : ${loopState}`, iconURL: track.info.requester.displayAvatarURL() })
             .setTimestamp(track.info.requestDate);
 
         // Condition to avoid sending the embed if the track is on repeat mode and if the channel is valid
 
-        if (channel && channel instanceof TextChannel && player.repeatMode != "track") channel.send({ embeds: [playingEmbed] });
-
-        updateVoiceStatus(player.voiceChannelId, '🎶 ' + track.info.title);
+        if (channel && channel instanceof TextChannel && player.repeatMode != "track") {
+            channel.send({ embeds: [playingEmbed] });
+            updateVoiceStatus(player.voiceChannelId, '🎶 ' + track.info.title);
+        }
 
         return;
     }
