@@ -57,7 +57,7 @@ module.exports = {
                     .setColor(COLOR_EMBED)
                     .setTitle("📜 Commandes disponibles :")
                     .setDescription(`Voici les commandes que tu peux utiliser avec ce bot de musique Lavalink :\n
-                    \`${prefix}play <lien ou recherche>\` - Joue une musique ou l'ajoute à la file d'attente.\n
+                    \`${prefix}play <lien ou recherche>\` - Ajoute une ou plusieurs musiques à la file d'attente. (YouTube uniquement)\n
                     \`${prefix}skip [nombre]\` - Passe au morceau suivant ou aux morceaux spécifiés.\n
                     \`${prefix}stop\` - Arrête la lecture et vide la file d'attente.\n
                     \`${prefix}leave\` - Déconnecte le bot du salon vocal.\n
@@ -80,16 +80,18 @@ module.exports = {
                 if (!query) return message.reply('❌ Fournis un lien ou une recherche.');
 
                 const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-                const spotifyRegex = /^(https?:\/\/)?(www\.)?(spotify\.com|open\.spotify\.?com)\/.+$/;
 
-                if (youtubeRegex.test(query) && query.includes("watch?v=")) {
+                if (youtubeRegex.test(query) && query.includes("watch?v=") && !query.includes("list=")) {
                     const videoParams = new URLSearchParams(query.split('?')[1]);
                     query = "https://www.youtube.com/watch?v=" + videoParams.get("v");
-                } else if (youtubeRegex.test(query) && !query.includes("watch?v=") && query.includes("youtu.be/")) {
+                } else if (youtubeRegex.test(query) && !query.includes("watch?v=") && query.includes("youtu.be/") && !query.includes("list=")) {
                     const videoId = query.split('/').pop();
                     query = "https://www.youtube.com/watch?v=" + videoId;
-                } else if (youtubeRegex.test(query)) {
-                    return message.reply('❌ Pour l\'instant, seules les vidéos YouTube individuelles sont supportées (pas les playlists ni les autres plateformes).');
+                } else if (youtubeRegex.test(query) && query.includes("list=")) {
+                    const listId = query.split('list=')[1].split('&')[0];
+                    query = `https://www.youtube.com/playlist?list=${listId}`;
+                } else if (youtubeRegex.test(query) && !query.includes("watch?v=") && !query.includes("list=")) {
+                    return message.reply('❌ Pour l\'instant, seules les vidéos YouTube (vidéos individuelles et playlists) sont supportées.');
                 }
 
                 const channel = message.member.voice.channel;
@@ -132,16 +134,40 @@ module.exports = {
 
                 track = result.tracks[0];
 
-                track.info.requester = message.author;
+                if (result.loadType === "playlist") {
+                    const playlistEmbed = new EmbedBuilder()
+                        .setColor(COLOR_EMBED)
+                        .setTitle(result.playlist.name)
+                        .setDescription(`\`${result.tracks.length}\` morceaux | Durée totale : \`${(await formatDuration(result.playlist.duration)).join(":")}\``)
+                        .setThumbnail(result.tracks[0].info.artworkUrl)
+                        .setFooter({ text: `Demandé par ${message.author.username}`, iconURL: message.author.displayAvatarURL() })
+                        .setTimestamp();
 
-                track.info.requestDate = new Date();
+                    for (const track of result.tracks) {
 
-                if (track.sourceName === "youtube") {
-                    const newArtworkUrl = await getBestThumbnail(track.info.identifier);
-                    track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
+                        track.info.requester = message.author;
+                        track.info.requestDate = new Date();
+
+                        if (track.sourceName === "youtube") {
+                            const newArtworkUrl = await getBestThumbnail(track.info.identifier);
+                            track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
+                        }
+
+                        player.queue.add(track);
+                    }
+
+                    message.channel.send({ embeds: [playlistEmbed] });
+                } else {
+                    track.info.requester = message.author;
+                    track.info.requestDate = new Date();
+
+                    if (track.sourceName === "youtube") {
+                        const newArtworkUrl = await getBestThumbnail(track.info.identifier);
+                        track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
+                    }
+
+                    player.queue.add(track);
                 }
-
-                player.queue.add(track);
 
                 if (!player.playing) {
                     await player.play();
@@ -228,18 +254,18 @@ module.exports = {
 
                     queue = `1. [${player.queue.current.info.title}](<${player.queue.current.info.uri}>) \`${player.queue.current.info.isStream == false ? (await formatDuration(parseInt(player.queue.current.info.duration - (Date.now() - player.queue.current.info.startedPlaying)))).join(":") : "Stream 🔴"}\`\n`;
 
-                    for (let i = 0; i < player.queue.tracks.length; i++) {
+                    for (let i = 1; i < player.queue.tracks.length; i++) {
 
                         let track = player.queue.tracks[i];
                         totalDuration += track.info.duration
 
-                        if (i <= 10) {
+                        if (i < 10) {
                             queue = queue + `${i + 2}. [${track.info.title}](<${track.info.uri}>) \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\`\n`;
                         }
                     }
 
                     if (player.queue.tracks.length > 10) {
-                        queue = queue + `...et ${player.queue.tracks.length - 10} autres morceaux !`;
+                        queue = queue + `...et ${player.queue.tracks.length - 9} autres morceaux !`;
                     }
 
                     queue += `\nDurée total de la file d'attente : \`${(await formatDuration(totalDuration)).join(":")}\``
@@ -303,9 +329,9 @@ module.exports = {
 
                 if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
 
-                if ((player.queue.tracks.length + 1) <= 2) return message.reply('❌ Il doit y avoir au moins 2 morceaux dans la file d\'attente pour mélanger.');
+                if (player.queue.tracks.length < 3) return message.reply('❌ Il doit y avoir au moins 3 morceaux dans la file d\'attente pour mélanger. (Morceau en cours non compris)');
                 player.queue.shuffle();
-                return message.reply('🔀 La file d\'attente a été mélangée.');
+                return message.reply(`🔀 ${player.queue.tracks.length} morceaux mélangés.`);
 
             case prefix + 'seek':
 
