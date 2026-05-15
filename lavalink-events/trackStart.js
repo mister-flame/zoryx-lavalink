@@ -20,7 +20,7 @@ module.exports = {
 
         // Set the start time of the current track
 
-        player.queue.current.info.startedPlaying = Date.now();
+        track.info.startedPlaying = Date.now();
 
         // Log the currently playing track
 
@@ -37,24 +37,46 @@ module.exports = {
             track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
         }
 
-        // Create an embed message to show the currently playing track
-
-        let loopState = "❌";
-
-        if (player.repeatMode === "queue") loopState = "🔁";
-
-        const playingEmbed = new EmbedBuilder()
-            .setColor(COLOR_EMBED)
-            .setTitle("🎶 Lecture en cours de :")
-            .setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``)
-            .setImage(track.info.artworkUrl)
-            .setFooter({ text: `Demandé par ${track.info.requester.username} • Loop : ${loopState}`, iconURL: track.info.requester.displayAvatarURL() })
-            .setTimestamp(track.info.requestDate);
+        switch (player.repeatMode) {
+            case "off":
+                loopState = "❌";
+                break;
+            case "track":
+                loopState = "🔂";
+                break;
+            case "queue":
+                loopState = "🔁";
+                break;
+            default:
+                loopState = "❌";
+                break;
+        }
 
         // Condition to avoid sending the embed if the track is on repeat mode and if the channel is valid
 
+        if ((player.mainMessage && player.mainMessage.embeds.length > 0 && player.repeatMode != "track") && channel && channel instanceof TextChannel && player.mainMessage.editable) {
+            const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
+
+            embed.setTitle(`🎶 Lecture en cours de :`);
+            embed.setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``);
+            embed.setFooter({ text: `Demandé par ${track.info.requester.username} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: track.info.requester.displayAvatarURL() });
+            embed.setImage(track.info.artworkUrl);
+            embed.setTimestamp(track.info.requestDate);
+
+            player.mainMessage.edit({ embeds: [embed] });
+        } else if (!player.mainMessage && channel && channel instanceof TextChannel) {
+            const playingEmbed = new EmbedBuilder()
+                .setColor(COLOR_EMBED)
+                .setTitle("🎶 Lecture en cours de :")
+                .setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``)
+                .setImage(track.info.artworkUrl)
+                .setFooter({ text: `Demandé par ${track.info.requester.username} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: track.info.requester.displayAvatarURL() })
+                .setTimestamp(track.info.requestDate);
+
+            player.mainMessage = await channel.send({ embeds: [playingEmbed] });
+        }
+
         if (channel && channel instanceof TextChannel && player.repeatMode != "track") {
-            channel.send({ embeds: [playingEmbed] });
             updateVoiceStatus(player.voiceChannelId, '🎶 ' + track.info.title);
         }
 

@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, TextChannel } = require("discord.js");
 const { prefix, COLOR_EMBED } = require("../util/config");
 const { getPlayer } = require("../functions/getPlayer");
 const { getBestThumbnail } = require("../functions/getBestThumbnail");
@@ -16,6 +16,14 @@ module.exports = {
         if (message.author.bot || !message.guild) return;
         const args = message.content.trim().split(/\s+/);
         const command = args.shift().toLowerCase();
+
+        if (command != prefix + 'ping' && command != prefix + 'help') {
+            if (message && message.deletable) {
+                setTimeout(() => {
+                    message.delete().catch(() => { });
+                }, 30000);
+            }
+        }
 
         let player = await getPlayer(client, message.guild.id);
         let track;
@@ -77,7 +85,12 @@ module.exports = {
             case prefix + 'play':
                 let query = args.join(' ');
 
-                if (!query) return message.reply('❌ Fournis un lien ou une recherche.');
+                if (!query) {
+                    message.reply({ content: '❌ Fournis un lien ou une recherche.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
 
@@ -91,11 +104,19 @@ module.exports = {
                     const listId = query.split('list=')[1].split('&')[0];
                     query = `https://www.youtube.com/playlist?list=${listId}`;
                 } else if (youtubeRegex.test(query) && !query.includes("watch?v=") && !query.includes("list=")) {
-                    return message.reply('❌ Pour l\'instant, seules les vidéos YouTube (vidéos individuelles et playlists) sont supportées.');
+                    message.reply({ content: '❌ Pour l\'instant, seules les vidéos YouTube (vidéos individuelles et playlists) sont supportées.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
                 }
 
                 const channel = message.member.voice.channel;
-                if (!channel) return message.reply('🔊 Rejoins un salon vocal.');
+                if (!channel) {
+                    message.reply({ content: '🔊 Rejoins un salon vocal.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 if (!player) {
 
@@ -114,7 +135,9 @@ module.exports = {
                         .setColor(COLOR_EMBED)
                         .setTimestamp();
 
-                    message.channel.send({ embeds: [newPlayer] });
+                    message.channel.send({ embeds: [newPlayer] }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
                 }
 
                 // Verify that the Lavalink node is connected before attempting to search for the track, and if not, attempt to reconnect the node and player before searching again
@@ -130,7 +153,12 @@ module.exports = {
                     query: query
                 });
 
-                if (!result.tracks.length) return message.reply('❌ Aucun résultat.');
+                if (!result.tracks.length) {
+                    message.reply({ content: '❌ Aucun résultat.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 track = result.tracks[0];
 
@@ -156,7 +184,9 @@ module.exports = {
                         player.queue.add(track);
                     }
 
-                    message.channel.send({ embeds: [playlistEmbed] });
+                    message.channel.send({ embeds: [playlistEmbed] }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
                 } else {
                     track.info.requester = message.author;
                     track.info.requestDate = new Date();
@@ -182,48 +212,88 @@ module.exports = {
                     .setFooter({ text: `Demandé par ${track.info.requester.username} | Position n°${player.queue.tracks.length + 1}`, iconURL: track.info.requester.displayAvatarURL() })
                     .setTimestamp(track.info.requestDate);
 
-                return message.channel.send({ embeds: [addSong] });
+                message.channel.send({ embeds: [addSong] }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             case prefix + 'skip':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 if (player.repeatMode === "track" || (player.repeatMode === "queue" && player.queue.tracks.length === 0)) {
-                    message.reply('🔂 Boucle activée, je relance le morceau.');
+                    message.reply({ content: '🔂 Boucle activée, je relance le morceau.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
                     return player.play(player.queue.current);
                 } else if ((player.repeatMode === "off") && player.queue.tracks.length === 0) {
                     return player.stopPlaying();
                 }
                 player.skip(args[0] ? parseInt(args[0]) - 1 : 0);
-                return message.reply(`${args[0] ? `🔂 Je passe au morceau \`${parseInt(args[0])}\`` : '⏭️ Morceau suivant.'}`);
+                message.reply({ content: `${args[0] ? `🔂 Je passe au morceau \`${parseInt(args[0])}\`` : '⏭️ Morceau suivant.'}` }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             case prefix + 'stop':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 player.stopPlaying();
                 updateVoiceStatus(player.voiceChannelId);
-                return message.reply('⏹️ Lecture arrêtée.');
+                message.reply({ content: '⏹️ Lecture arrêtée.' }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             case prefix + 'leave':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 if (player) {
                     updateVoiceStatus(player.voiceChannelId);
                     player.destroy();
-                    message.reply('👋 Déconnecté.');
+                    message.reply({ content: '👋 Déconnecté.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
                 } else {
-                    message.reply('❌ Je ne suis pas connecté.');
+                    message.reply({ content: '❌ Je ne suis pas connecté.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
                 }
                 return;
 
             case prefix + 'loop':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 let choice = args[0];
-                if (!choice || (choice !== "track" && choice !== "queue" && choice !== "off")) return message.reply('❌ Précise "track", "queue" ou "off".');
+                if (!choice || (choice !== "track" && choice !== "queue" && choice !== "off")) {
+                    message.reply({ content: `❌ Précise "track", "queue" ou "off". (Actuellement : \`${player.repeatMode}\`)` }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 let emojiRepeat;
                 switch (choice) {
@@ -238,13 +308,35 @@ module.exports = {
                         break;
                 }
 
-                if (!player) return message.reply('❌ Aucun morceau en cours.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun morceau en cours.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
                 player.setRepeatMode(choice);
-                return message.reply(`${emojiRepeat} Mode boucle définit sur le mode : \`${player.repeatMode}\`.`);
+
+                if ((player.mainMessage && player.mainMessage.embeds.length > 0) && message.channel && message.channel instanceof TextChannel && player.mainMessage.editable) {
+
+                    const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
+                    embed.setFooter({ text: `Demandé par ${player.queue.current.info.requester.username} • Loop : ${emojiRepeat} • ${player.queue.tracks.length + 1} morceaux`, iconURL: player.queue.current.info.requester.displayAvatarURL() });
+
+                    player.mainMessage.edit({ embeds: [embed] });
+                }
+
+                message.reply({ content: `${emojiRepeat} Mode boucle définit sur le mode : \`${player.repeatMode}\`.` }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             case prefix + 'queue':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 let queue = null;
 
@@ -278,7 +370,10 @@ module.exports = {
                         .setFooter({ text: `${player.queue.tracks.length + 1} musique(s) au total`, iconURL: message.author.displayAvatarURL() })
                         .setTimestamp(new Date());
 
-                    return message.reply({ embeds: [queueEmbed] });
+                    message.reply({ embeds: [queueEmbed] }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
                 } else {
                     const queueEmbed = new EmbedBuilder()
                         .setColor(COLOR_EMBED)
@@ -287,24 +382,45 @@ module.exports = {
                         .setFooter({ text: `${player.queue.tracks.length} musique(s) au total`, iconURL: message.author.displayAvatarURL() })
                         .setTimestamp(new Date());
 
-                    return message.reply({ embeds: [queueEmbed] });
+                    message.reply({ embeds: [queueEmbed] }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
                 }
                 return;
 
             case prefix + 'replay':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 await player.play(player.queue.current);
-                return message.reply('🔂 Je relance le morceau en cours.');
+                message.reply({ content: '🔂 Je relance le morceau en cours.' }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             case prefix + 'nowplaying':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 track = player.queue.current;
 
-                if (!track) return message.reply('❌ Aucun morceau en cours.');
+                if (!track) {
+                    message.reply({ content: '❌ Aucun morceau en cours.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 const currentTime = Date.now() - track.info.startedPlaying;
                 const totalTime = track.info.duration;
@@ -323,48 +439,100 @@ module.exports = {
                     .setThumbnail(track.info.artworkUrl)
                     .setFooter({ text: `Demandé par ${track.info.requester.username}`, iconURL: track.info.requester.displayAvatarURL() })
                     .setTimestamp(track.info.requestDate);
-                return message.reply({ embeds: [nowPlayingEmbed] });
+                message.reply({ embeds: [nowPlayingEmbed] }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             case prefix + 'shuffle':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
-                if (player.queue.tracks.length < 3) return message.reply('❌ Il doit y avoir au moins 3 morceaux dans la file d\'attente pour mélanger. (Morceau en cours non compris)');
+                if (player.queue.tracks.length < 3) {
+                    message.reply({ content: '❌ Il doit y avoir au moins 3 morceaux dans la file d\'attente pour mélanger. (Morceau en cours non compris)' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
                 player.queue.shuffle();
-                return message.reply(`🔀 \`${player.queue.tracks.length}\` morceaux mélangés.`);
+                message.reply({ content: `🔀 \`${player.queue.tracks.length}\` morceaux mélangés.` }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             case prefix + 'seek':
 
-                if (!player) return message.reply('❌ Aucun player/morceau pour ce serveur.');
+                if (!player) {
+                    message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 track = player.queue.current;
 
-                if (track.info.isStream == true) return message.reply('❌ Impossible de seek une musique en stream.');
+                if (track.info.isStream == true) {
+                    message.reply({ content: '❌ Impossible de seek une musique en stream.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 let time = ms(args[0]);
 
                 if (!time && time != 0) {
                     if (args[0].includes(":")) {
                         const timeParts = args[0].split(":").map(part => parseInt(part));
-                        if (timeParts.some(isNaN)) return message.reply('❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.');
-                        if (timeParts.length > 3) return message.reply('❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.');
+                        if (timeParts.some(isNaN)) {
+                            message.reply({ content: '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
+                                setTimeout(() => msg.delete().catch(() => { }), 30000);
+                            }).catch(() => { });
+                            return;
+                        }
+                        if (timeParts.length > 3) {
+                            message.reply({ content: '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
+                                setTimeout(() => msg.delete().catch(() => { }), 30000);
+                            }).catch(() => { });
+                            return;
+                        }
                         time = 0;
                         for (let i = timeParts.length - 1; i >= 0; i--) {
                             time += timeParts[i] * Math.pow(60, timeParts.length - 1 - i) * 1000;
                         }
                     } else {
-                        return message.reply('❌ Précise une durée valide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.');
+                        message.reply({ content: '❌ Précise une durée valide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
+                            setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        }).catch(() => { });
+                        return;
                     }
                 }
 
-                if (isNaN(time)) return message.reply('❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc.');
+                if (isNaN(time)) {
+                    message.reply({ content: '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
-                if (time < 0 || time > track.info.duration) return message.reply(`❌ La durée doit être comprise entre \`0\` et \`${(await formatDuration(track.info.duration)).join(":")}\`.`);
+                if (time < 0 || time > track.info.duration) {
+                    message.reply({ content: `❌ La durée doit être comprise entre \`0\` et \`${(await formatDuration(track.info.duration)).join(":")}\`.` }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                    return;
+                }
 
                 track.info.startedPlaying = Date.now() - time;
                 await player.seek(time);
 
-                return message.reply(`⏩ Je me déplace à \`${((await formatDuration(time)).join(":"))}\` dans la musique.`);
+                message.reply({ content: `⏩ Je me déplace à \`${((await formatDuration(time)).join(":"))}\` dans la musique.` }).then(msg => {
+                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                }).catch(() => { });
+                return;
 
             default:
                 return;

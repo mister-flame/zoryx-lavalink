@@ -32,6 +32,9 @@ module.exports = {
         // Send the embed message to the associated text channel if it's valid
 
         if (channel && channel instanceof TextChannel) channel.send({ embeds: [leaveEmbed] });
+
+        if (player.mainMessage && player.mainMessage.deletable) player.mainMessage.delete().catch(() => { });
+
         player.destroy();
         updateVoiceStatus(player.voiceChannelId);
         return;

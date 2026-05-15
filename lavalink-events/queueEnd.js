@@ -12,6 +12,11 @@ module.exports = {
     on: true,
     async execute(client, player) {
 
+        if (player.mainMessage && player.mainMessage.deletable) {
+            player.mainMessage.delete().catch(() => { });
+            player.mainMessage = null;
+        }
+
         updateVoiceStatus(player.voiceChannelId, "Plus de musiques dans la file❗");
 
         return;
