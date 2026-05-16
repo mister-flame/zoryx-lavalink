@@ -22,8 +22,8 @@ module.exports = {
       if (player) {
         if (player.mainMessage && player.mainMessage.deletable) {
           player.mainMessage.delete().catch((err) => console.error(`Error deleting main message: ${err.message}`));
+          await updateVoiceStatus(oldstate.channelId).catch((err) => console.error(`Error updating voice status: ${err.message}`));
         }
-        updateVoiceStatus(oldstate.guild.id).catch((err) => console.error(`Error updating voice status: ${err.message}`));
         player.destroy();
       }
     }
