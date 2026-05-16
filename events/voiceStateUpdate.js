@@ -6,6 +6,7 @@ const {
 const { connectDB } = require("../functions/connectDatabase");
 const { deleteTmpChannel } = require("../functions/deleteTmpChannel");
 const { getPlayer } = require("../functions/getPlayer");
+const { updateVoiceStatus } = require("../functions/updateVoiceStatus");
 
 let query = null;
 
@@ -22,6 +23,7 @@ module.exports = {
         if (player.mainMessage && player.mainMessage.deletable) {
           player.mainMessage.delete().catch((err) => console.error(`Error deleting main message: ${err.message}`));
         }
+        updateVoiceStatus(oldstate.guild.id).catch((err) => console.error(`Error updating voice status: ${err.message}`));
         player.destroy();
       }
     }

@@ -154,7 +154,7 @@ module.exports = {
                     source: "youtube"
                 })
 
-                if (!result.tracks.length) {
+                if (!result.tracks.length || result.tracks.length === 0) {
                     message.reply({ content: '❌ Aucun résultat.' }).then(msg => {
                         setTimeout(() => msg.delete().catch(() => { }), 30000);
                     }).catch(() => { });

@@ -52,6 +52,10 @@ module.exports = {
                 break;
         }
 
+        const requester = track.info.requester ?? player.queue.current?.info?.requester;
+        const requesterName = requester?.username || "Inconnu";
+        const requesterAvatar = typeof requester?.displayAvatarURL === "function" ? requester.displayAvatarURL() : undefined;
+
         // Condition to avoid sending the embed if the track is on repeat mode and if the channel is valid
 
         if ((player.mainMessage && player.mainMessage.embeds.length > 0 && player.repeatMode != "track") && channel && channel instanceof TextChannel && player.mainMessage.editable) {
@@ -59,7 +63,7 @@ module.exports = {
 
             embed.setTitle(`🎶 Lecture en cours de :`);
             embed.setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``);
-            embed.setFooter({ text: `Demandé par ${track.info.requester.username} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: track.info.requester.displayAvatarURL() });
+            embed.setFooter({ text: `Demandé par ${requesterName} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: requesterAvatar });
             embed.setImage(track.info.artworkUrl);
             embed.setTimestamp(track.info.requestDate);
 
@@ -70,7 +74,7 @@ module.exports = {
                 .setTitle("🎶 Lecture en cours de :")
                 .setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``)
                 .setImage(track.info.artworkUrl)
-                .setFooter({ text: `Demandé par ${track.info.requester.username} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: track.info.requester.displayAvatarURL() })
+                .setFooter({ text: `Demandé par ${requesterName} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: requesterAvatar })
                 .setTimestamp(track.info.requestDate);
 
             player.mainMessage = await channel.send({ embeds: [playingEmbed] });
