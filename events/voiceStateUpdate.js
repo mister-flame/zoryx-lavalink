@@ -19,6 +19,9 @@ module.exports = {
       const player = await getPlayer(client, oldstate.guild.id);
 
       if (player) {
+        if (player.mainMessage && player.mainMessage.deletable) {
+          player.mainMessage.delete().catch((err) => console.error(`Error deleting main message: ${err.message}`));
+        }
         player.destroy();
       }
     }
