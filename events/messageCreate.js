@@ -507,6 +507,12 @@ module.exports = {
                     return;
                 }
 
+                if (args.length == 0) {
+                    return message.reply({ content: '❌ Précise une durée à laquelle se déplacer. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
+                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    }).catch(() => { });
+                }
+
                 let time = ms(args[0]);
 
                 if (!time && time != 0) {
