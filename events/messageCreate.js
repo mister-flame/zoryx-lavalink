@@ -178,9 +178,9 @@ module.exports = {
 
                     const playlistEmbed = new EmbedBuilder()
                         .setColor(COLOR_EMBED)
-                        .setTitle(result.playlist.name)
-                        .setDescription(`\`${result.tracks.length}\` morceaux | Durée totale : \`${(await formatDuration(result.playlist.duration)).join(":")}\``)
-                        .setThumbnail(result.tracks[0].info.artworkUrl)
+                        .setTitle(`Playlist: ${result.playlist.name} ajouée à la file d'attente !`)
+                        .setDescription(`\`${validTracks.length}\` morceaux | Durée totale : \`${(await formatDuration(result.playlist.duration)).join(":")}\``)
+                        .setThumbnail(validTracks[0].info.artworkUrl)
                         .setFooter({ text: `Demandé par ${message.author.username}`, iconURL: message.author.displayAvatarURL() })
                         .setTimestamp();
 
@@ -203,6 +203,30 @@ module.exports = {
                     await player.play();
                     return;
                 }
+
+                if ((player.mainMessage && player.mainMessage.embeds.length > 0) && message.channel && message.channel instanceof TextChannel && player.mainMessage.editable) {
+
+                    let emojiRepeat;
+
+                    switch (player.repeatMode) {
+                        case "track":
+                            emojiRepeat = "🔂";
+                            break;
+                        case "queue":
+                            emojiRepeat = "🔁";
+                            break;
+                        case "off":
+                            emojiRepeat = "❌";
+                            break;
+                    }
+
+                    const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
+                    embed.setFooter({ text: `Demandé par ${player.queue.current.info.requester.username} • Loop : ${emojiRepeat} • ${player.queue.tracks.length + 1} morceaux`, iconURL: player.queue.current.info.requester.displayAvatarURL() });
+
+                    player.mainMessage.edit({ embeds: [embed] });
+                }
+
+                if (result.loadType === "playlist") return;
 
                 const addSong = new EmbedBuilder()
                     .setColor(COLOR_EMBED)
