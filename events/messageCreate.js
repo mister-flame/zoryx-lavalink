@@ -149,9 +149,10 @@ module.exports = {
 
                 if (!player.connected) await player.connect();
 
-                const result = await player.search({
-                    query: query
-                });
+                let result = await player.search({
+                    query: query,
+                    source: "youtube"
+                })
 
                 if (!result.tracks.length) {
                     message.reply({ content: '❌ Aucun résultat.' }).then(msg => {
@@ -163,6 +164,18 @@ module.exports = {
                 track = result.tracks[0];
 
                 if (result.loadType === "playlist") {
+
+                    const validTracks = result.tracks.filter(track =>
+                        track.info.isSeekable && !track.info.isStream
+                    );
+
+                    for (const t of validTracks) {
+                        t.info.requester = message.author;
+                        t.info.requestDate = new Date();
+                    }
+
+                    player.queue.add(validTracks);
+
                     const playlistEmbed = new EmbedBuilder()
                         .setColor(COLOR_EMBED)
                         .setTitle(result.playlist.name)
@@ -171,20 +184,7 @@ module.exports = {
                         .setFooter({ text: `Demandé par ${message.author.username}`, iconURL: message.author.displayAvatarURL() })
                         .setTimestamp();
 
-                    for (const track of result.tracks) {
-
-                        track.info.requester = message.author;
-                        track.info.requestDate = new Date();
-
-                        if (track.sourceName === "youtube") {
-                            const newArtworkUrl = await getBestThumbnail(track.info.identifier);
-                            track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
-                        }
-
-                        player.queue.add(track);
-                    }
-
-                    message.channel.send({ embeds: [playlistEmbed] }).then(msg => {
+                    await message.channel.send({ embeds: [playlistEmbed] }).then(msg => {
                         setTimeout(() => msg.delete().catch(() => { }), 30000);
                     }).catch(() => { });
                 } else {
