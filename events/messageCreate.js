@@ -21,7 +21,7 @@ module.exports = {
             if (message && message.deletable) {
                 setTimeout(() => {
                     message.delete().catch(() => { });
-                }, 30000);
+                }, 15000);
             }
         }
 
@@ -87,7 +87,7 @@ module.exports = {
 
                 if (!query) {
                     message.reply({ content: '❌ Fournis un lien ou une recherche.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -105,7 +105,7 @@ module.exports = {
                     query = `https://www.youtube.com/playlist?list=${listId}`;
                 } else if (youtubeRegex.test(query) && !query.includes("watch?v=") && !query.includes("list=")) {
                     message.reply({ content: '❌ Pour l\'instant, seules les vidéos YouTube (vidéos individuelles et playlists) sont supportées.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -113,7 +113,7 @@ module.exports = {
                 const channel = message.member.voice.channel;
                 if (!channel) {
                     message.reply({ content: '🔊 Rejoins un salon vocal.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -136,7 +136,7 @@ module.exports = {
                         .setTimestamp();
 
                     message.channel.send({ embeds: [newPlayer] }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                 }
 
@@ -156,7 +156,7 @@ module.exports = {
 
                 if (!result.tracks.length || result.tracks.length === 0) {
                     message.reply({ content: '❌ Aucun résultat.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -185,7 +185,7 @@ module.exports = {
                         .setTimestamp();
 
                     await message.channel.send({ embeds: [playlistEmbed] }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                 } else {
                     track.info.requester = message.author;
@@ -237,7 +237,7 @@ module.exports = {
                     .setTimestamp(track.info.requestDate);
 
                 message.channel.send({ embeds: [addSong] }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 
@@ -245,14 +245,14 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
 
                 if (player.repeatMode === "track" || (player.repeatMode === "queue" && player.queue.tracks.length === 0)) {
                     message.reply({ content: '🔂 Boucle activée, je relance le morceau.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return player.play(player.queue.current);
                 } else if ((player.repeatMode === "off") && player.queue.tracks.length === 0) {
@@ -260,7 +260,7 @@ module.exports = {
                 }
                 player.skip(args[0] ? parseInt(args[0]) - 1 : 0);
                 message.reply({ content: `${args[0] ? `🔂 Je passe au morceau \`${parseInt(args[0])}\`` : '⏭️ Morceau suivant.'}` }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 
@@ -268,7 +268,7 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -276,7 +276,7 @@ module.exports = {
                 player.stopPlaying();
                 updateVoiceStatus(player.voiceChannelId);
                 message.reply({ content: '⏹️ Lecture arrêtée.' }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 
@@ -284,7 +284,7 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -293,11 +293,11 @@ module.exports = {
                     updateVoiceStatus(player.voiceChannelId);
                     player.destroy();
                     message.reply({ content: '👋 Déconnecté.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                 } else {
                     message.reply({ content: '❌ Je ne suis pas connecté.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                 }
                 return;
@@ -306,7 +306,7 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -314,7 +314,7 @@ module.exports = {
                 let choice = args[0];
                 if (!choice || (choice !== "track" && choice !== "queue" && choice !== "off")) {
                     message.reply({ content: `❌ Précise "track", "queue" ou "off". (Actuellement : \`${player.repeatMode}\`)` }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -334,7 +334,7 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun morceau en cours.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -349,7 +349,7 @@ module.exports = {
                 }
 
                 message.reply({ content: `${emojiRepeat} Mode boucle définit sur le mode : \`${player.repeatMode}\`.` }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 
@@ -357,7 +357,7 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -395,7 +395,7 @@ module.exports = {
                         .setTimestamp(new Date());
 
                     message.reply({ embeds: [queueEmbed] }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 } else {
@@ -407,7 +407,7 @@ module.exports = {
                         .setTimestamp(new Date());
 
                     message.reply({ embeds: [queueEmbed] }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -417,14 +417,14 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
 
                 await player.play(player.queue.current);
                 message.reply({ content: '🔂 Je relance le morceau en cours.' }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 
@@ -432,7 +432,7 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -441,7 +441,7 @@ module.exports = {
 
                 if (!track) {
                     message.reply({ content: '❌ Aucun morceau en cours.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -464,7 +464,7 @@ module.exports = {
                     .setFooter({ text: `Demandé par ${track.info.requester.username}`, iconURL: track.info.requester.displayAvatarURL() })
                     .setTimestamp(track.info.requestDate);
                 message.reply({ embeds: [nowPlayingEmbed] }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 
@@ -472,20 +472,20 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
 
                 if (player.queue.tracks.length < 3) {
                     message.reply({ content: '❌ Il doit y avoir au moins 3 morceaux dans la file d\'attente pour mélanger. (Morceau en cours non compris)' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
                 player.queue.shuffle();
                 message.reply({ content: `🔀 \`${player.queue.tracks.length}\` morceaux mélangés.` }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 
@@ -493,7 +493,7 @@ module.exports = {
 
                 if (!player) {
                     message.reply({ content: '❌ Aucun player/morceau pour ce serveur.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -502,14 +502,14 @@ module.exports = {
 
                 if (track.info.isStream == true) {
                     message.reply({ content: '❌ Impossible de seek une musique en stream.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
 
                 if (args.length == 0) {
                     return message.reply({ content: '❌ Précise une durée à laquelle se déplacer. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                 }
 
@@ -520,13 +520,13 @@ module.exports = {
                         const timeParts = args[0].split(":").map(part => parseInt(part));
                         if (timeParts.some(isNaN)) {
                             message.reply({ content: '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
-                                setTimeout(() => msg.delete().catch(() => { }), 30000);
+                                setTimeout(() => msg.delete().catch(() => { }), 15000);
                             }).catch(() => { });
                             return;
                         }
                         if (timeParts.length > 3) {
                             message.reply({ content: '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
-                                setTimeout(() => msg.delete().catch(() => { }), 30000);
+                                setTimeout(() => msg.delete().catch(() => { }), 15000);
                             }).catch(() => { });
                             return;
                         }
@@ -536,7 +536,7 @@ module.exports = {
                         }
                     } else {
                         message.reply({ content: '❌ Précise une durée valide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.' }).then(msg => {
-                            setTimeout(() => msg.delete().catch(() => { }), 30000);
+                            setTimeout(() => msg.delete().catch(() => { }), 15000);
                         }).catch(() => { });
                         return;
                     }
@@ -544,14 +544,14 @@ module.exports = {
 
                 if (isNaN(time)) {
                     message.reply({ content: '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc.' }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
 
                 if (time < 0 || time > track.info.duration) {
                     message.reply({ content: `❌ La durée doit être comprise entre \`0\` et \`${(await formatDuration(track.info.duration)).join(":")}\`.` }).then(msg => {
-                        setTimeout(() => msg.delete().catch(() => { }), 30000);
+                        setTimeout(() => msg.delete().catch(() => { }), 15000);
                     }).catch(() => { });
                     return;
                 }
@@ -560,7 +560,7 @@ module.exports = {
                 await player.seek(time);
 
                 message.reply({ content: `⏩ Je me déplace à \`${((await formatDuration(time)).join(":"))}\` dans la musique.` }).then(msg => {
-                    setTimeout(() => msg.delete().catch(() => { }), 30000);
+                    setTimeout(() => msg.delete().catch(() => { }), 15000);
                 }).catch(() => { });
                 return;
 

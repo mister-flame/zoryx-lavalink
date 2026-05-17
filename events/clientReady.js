@@ -30,16 +30,27 @@ module.exports = {
                 const guild = client.guilds.cache.get(guildId);
                 if (guild) guild.shard.send(payload);
             },
+
             client: { id: client.user.id, username: client.user.username },
             autoSkip: true,
             playerOptions: {
+                onDisconnect: {
+                    autoReconnect: false,
+                    destroyPlayer: true
+                },
+                onEmptyQueue: {
+                    destroyAfterMs: 300_000
+                },
+            },
+            // Lavalink client options to configure behavior such as auto-reconnection and queue management
+            clientOptions: {
                 clientBasedPositionUpdateInterval: 60,
                 defaultSearchPlatform: "youtube",
-                volumeDecrementer: 1,
                 onDisconnect: { autoReconnect: false, destroyPlayer: true },
                 onEmptyQueue: { destroyAfterMs: 300_000 },
             },
             queueOptions: { maxPreviousTracks: 0 },
+            autoSkipOnResolveError: true
         });
 
         // Set up event listeners for Lavalink events to log node connections, errors, and statistics
@@ -52,22 +63,32 @@ module.exports = {
             console.error(`❌ Erreur sur node ${node.options.id} :`, err);
         });
 
-        client.lavalink.on("nodeError", (node, error) => {
-            console.error(`[Lavalink] ❌ Erreur sur le node ${node.options.identifier} :`, error);
-            node.connect().catch(console.error);
+        client.lavalink.on('nodeError', (node, error) => {
+            console.error(`❌ Node ${node.options.identifier} encountered an error:`, error);
+        });
+
+        client.lavalink.on('nodeDisconnect', (node, reason) => {
+            console.warn(`❌ Node ${node.options.identifier} disconnected:`, reason);
+            setTimeout(() => {
+                if (!node.isAlive) {
+                    node.connect();
+                }
+            }, 5000);
+        });
+
+        client.lavalink.on('nodeReconnect', (node) => {
+            console.log(`Node ${node.options.identifier} reconnecté !`);
+
+            // Reconnect all players that were previously playing before the node disconnected
+            for (const [_, player] of client.lavalink.players) {
+                if (player.playing) {
+                    player.reconnect?.();
+                }
+            }
         });
 
         client.lavalink.on("nodeStats", (node, stats) => {
             console.log(`📊 Stats de ${node.options.id} :`, stats);
-        });
-
-        client.lavalink.on("nodeDisconnect", (node) => {
-            console.log(`[Lavalink] ⚠️ Node ${node.options.identifier} déconnecté (code: ${node.socket._closeCode})`);
-            setTimeout(() => {
-                node.connect().catch((err) => {
-                    console.error(`[Lavalink] ❌ Échec de reconnexion : ${err.message}`);
-                });
-            }, 1000);
         });
 
         // Attempt to initialize the LavalinkManager and catch any errors that occur during initialization
@@ -135,21 +156,18 @@ module.exports = {
             console.error(error);
         }
 
-        setInterval(() => {
-            client.lavalink.nodeManager.nodes.forEach((node) => {
-                if (node.connected) {
-                    if (node.heartBeatPing != -1) {
-                        console.log(`[Lavalink] Node ${node.id} is healthy with a heartbeat ping of ${node.heartBeatPing.toFixed(2)}ms.`);
-                    } else {
-                        console.warn(`[Lavalink] Node ${node.id} is connected but has an invalid heartbeat ping. Attempting to reconnect...`);
-                        node.connect().catch((err) => console.error(`[Lavalink] Error reconnecting: ${err.message}`));
+        setInterval(async () => {
+            for (const [_, node] of client.lavalink.nodeManager.nodes) {
+                if (node.reconnectionState === 'IDLE' || !node.isAlive) {
+                    console.warn(`[Watchdog] Node mort détecté, reconnexion...`);
+                    try {
+                        await node.connect();
+                    } catch (e) {
+                        console.error('[Watchdog] Échec reconnexion:', e);
                     }
-                } else {
-                    console.warn(`[Lavalink] Node ${node.id} is not connected. Attempting to reconnect...`);
-                    node.connect().catch((err) => console.error(`[Lavalink] Error reconnecting: ${err.message}`));
                 }
-            });
-        },  30 * 1000); // Ping every 30 seconds
+            }
+        }, 60_000); // Check every minute if the node is alive and attempt to reconnect if it's not
 
         // Attempt to delete any temporary voice channels that may have been left over from previous sessions and catch any errors that occur during the deletion process
 
