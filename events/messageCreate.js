@@ -1,11 +1,14 @@
-const { EmbedBuilder, TextChannel } = require("discord.js");
-const { prefix, COLOR_EMBED } = require("../util/config");
+const { EmbedBuilder, TextChannel, Collection, WebhookClient } = require("discord.js");
+const { prefix, COLOR_EMBED, LOGS_WEBHOOK } = require("../util/config");
 const { getPlayer } = require("../functions/getPlayer");
 const { getBestThumbnail } = require("../functions/getBestThumbnail");
 const { formatDuration } = require("../functions/formatDuration");
 const { updateVoiceStatus } = require("../functions/updateVoiceStatus");
 const { LavalinkManager } = require("lavalink-client");
+const cooldowns = new Collection();
 const ms = require("ms");
+
+const webhookClientLogs = new WebhookClient({ url: LOGS_WEBHOOK });
 
 module.exports = {
     name: "messageCreate",
@@ -14,6 +17,43 @@ module.exports = {
         if (!message.content.startsWith(prefix)) return;
 
         if (message.author.bot || !message.guild) return;
+
+        if (!cooldowns.has(message.author.id)) {
+            cooldowns.set(message.author.id, Date.now());
+        } else {
+            const now = Date.now();
+            const cooldown = cooldowns.get(message.author.id);
+            if (now - cooldown < 5000) {
+                return message.reply({ content: `⏳ Merci d\'attendre ${Math.ceil((5000 - (now - cooldown)) / 1000)} secondes entre chaque commande.` }).then(msg => {
+                    setTimeout(() => {
+                        msg.delete().catch(() => { });
+                        message.delete().catch(() => { });
+                    }, 10000);
+                }).catch(() => { });
+            }
+            cooldowns.set(message.author.id, now);
+        }
+
+        const logsEmbed = new EmbedBuilder()
+            .setColor(COLOR_EMBED)
+            .setTitle("📥 Commande reçue !")
+            .setDescription(`**Auteur :** ${message.author.tag} (${message.author.id})\n**Salon :** ${message.channel.name} (${message.channel.id})\n**Contenu :** \`${message.content}\``)
+            .setFooter({ text: `Guild : ${message.guild.name} (${message.guild.id})`, iconURL: message.guild.iconURL() })
+            .setTimestamp();
+
+        await webhookClientLogs.edit({
+            name: `${client.user.username} | Logs`,
+            avatar: client.user.displayAvatarURL({ extension: "png", forceStatic: false, size: 1024 }),
+        });
+
+        // Attempt to send the startup embed message to the webhook and catch any errors that occur during the sending process
+
+        try {
+            webhookClientLogs.send({ embeds: [logsEmbed] });
+        } catch (error) {
+            console.error(error);
+        }
+
         const args = message.content.trim().split(/\s+/);
         const command = args.shift().toLowerCase();
 

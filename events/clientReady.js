@@ -158,7 +158,7 @@ module.exports = {
 
         setInterval(async () => {
             for (const [_, node] of client.lavalink.nodeManager.nodes) {
-                if (node.reconnectionState === 'IDLE' || !node.isAlive) {
+                if (node.reconnectionState === 'IDLE' && !node.isAlive) {
                     console.warn(`[Watchdog] Node mort détecté, reconnexion...`);
                     try {
                         await node.connect();
