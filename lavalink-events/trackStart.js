@@ -61,7 +61,9 @@ module.exports = {
         if ((player.mainMessage && player.mainMessage.embeds.length > 0 && player.repeatMode != "track") && channel && channel instanceof TextChannel && player.mainMessage.editable) {
             const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
 
-            embed.setTitle(`🎶 Lecture en cours de :`);
+            if (embed.data.title !== `🎶 Lecture en cours de :`) embed.setTitle(`🎶 Lecture en cours de :`);
+            if (embed.data.color !== COLOR_EMBED) embed.setColor(COLOR_EMBED);
+
             embed.setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``);
             embed.setFooter({ text: `Demandé par ${requesterName} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: requesterAvatar });
             embed.setImage(track.info.artworkUrl);

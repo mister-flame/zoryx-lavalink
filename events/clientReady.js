@@ -37,7 +37,7 @@ module.exports = {
                 defaultSearchPlatform: "youtube",
                 volumeDecrementer: 1,
                 onDisconnect: { autoReconnect: false, destroyPlayer: true },
-                onEmptyQueue: { destroyAfterMs: 120_000 },
+                onEmptyQueue: { destroyAfterMs: 300_000 },
             },
             queueOptions: { maxPreviousTracks: 0 },
         });
