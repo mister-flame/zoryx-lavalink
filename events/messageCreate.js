@@ -204,6 +204,8 @@ module.exports = {
 
                 track = result.tracks[0];
 
+                await playWithPoToken(track.info.identifier);
+
                 if (result.loadType === "playlist") {
 
                     const validTracks = result.tracks.filter(track =>
@@ -239,8 +241,6 @@ module.exports = {
 
                     player.queue.add(track);
                 }
-
-                await playWithPoToken(track.info.identifier);
 
                 if (!player.playing) {
                     await player.play();
