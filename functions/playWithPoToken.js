@@ -1,6 +1,6 @@
 // Dependencies import
 
-const { cipherPassword, lavalinkPassword } = require("../util/config");
+const { node } = require("../util/config");
 
 /**
  * Get a potoken for a specific video, using the cipher, then use it for the lavalink server
@@ -16,7 +16,7 @@ module.exports.playWithPoToken = async function playWithPoToken(videoId) {
         method: "POST",
         headers: {
             "Content-Type": 'application/json',
-            "Authorization": cipherPassword
+            "Authorization": node.authorization
         },
         body: JSON.stringify({
             videoId: videoId,
@@ -36,7 +36,7 @@ module.exports.playWithPoToken = async function playWithPoToken(videoId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': lavalinkPassword
+            'Authorization': node.authorization
         },
         body: JSON.stringify({
             poToken: generatedPoToken.videoIdToken,
