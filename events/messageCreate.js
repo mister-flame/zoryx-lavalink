@@ -7,7 +7,6 @@ const { updateVoiceStatus } = require("../functions/updateVoiceStatus");
 const { LavalinkManager } = require("lavalink-client");
 const cooldowns = new Collection();
 const ms = require("ms");
-const { playWithPoToken } = require("../functions/playWithPoToken");
 
 const webhookClientLogs = new WebhookClient({ url: LOGS_WEBHOOK });
 
@@ -203,8 +202,6 @@ module.exports = {
                 }
 
                 track = result.tracks[0];
-
-                await playWithPoToken(track.info.identifier);
 
                 if (result.loadType === "playlist") {
 
