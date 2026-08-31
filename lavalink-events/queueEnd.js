@@ -17,7 +17,7 @@ module.exports = {
             const waitEmbed = new EmbedBuilder()
                 .setTitle(`En attente de la prochaine musique...`)
                 .setDescription(`**La file d'attente est terminée❗**\n\nAjoutez des musiques à la file d'attente pour continuer à écouter de la musique ! (le bot quittera le canal vocal dans 5 minutes s'il n'y a pas de nouvelle musique)`)
-                .setFooter({ text: "Partira le " })
+                .setFooter({ text: "Partira" })
                 .setTimestamp(Date.now() + 5 * 60 * 1000);
 
             player.mainMessage.edit({ embeds: [waitEmbed] });

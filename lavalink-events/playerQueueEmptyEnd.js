@@ -31,7 +31,13 @@ module.exports = {
 
         // Send the embed message to the associated text channel if it's valid
 
-        if (channel && channel instanceof TextChannel) channel.send({ embeds: [leaveEmbed] });
+        if (channel && channel instanceof TextChannel) channel.send({ embeds: [leaveEmbed] }).then((message) => {
+            setTimeout(() => {
+                message.delete().catch((error) => {
+                    console.error(error);
+                });
+            }, 30 * 1000)
+        })
 
         if (player.mainMessage && player.mainMessage.deletable) player.mainMessage.delete().catch(() => { });
 
