@@ -17,26 +17,26 @@ module.exports.updateActivities = async function updateActivities(client) {
     const activities = [
         {
             type: ActivityType.Custom,
-            name: `${prefix}help | Sur ${client.guilds.cache.size} serveurs 🗨️`,
-            state: `${prefix}help | Sur ${client.guilds.cache.size} serveurs 🗨️`
+            name: `${prefix}help | Sur ${client.guilds.cache.size || 0} serveurs 🗨️`,
+            state: `${prefix}help | Sur ${client.guilds.cache.size || 0} serveurs 🗨️`
         },
 
         {
             type: ActivityType.Custom,
-            name: `${prefix}help | Utilisé par ${client.users.cache.size} utilisateurs 👥`,
-            state: `${prefix}help | Utilisé par ${client.users.cache.size} utilisateurs 👥`
+            name: `${prefix}help | Utilisé par ${client.users.cache.size || 0} utilisateurs 👥`,
+            state: `${prefix}help | Utilisé par ${client.users.cache.size || 0} utilisateurs 👥`
         },
 
         {
             type: ActivityType.Custom,
-            name: `${prefix}help | En train de jouer ${client.lavalink.players.size} musiques 🎶`,
-            state: `${prefix}help | En train de jouer ${client.lavalink.players.size} musiques 🎶`
+            name: `${prefix}help | En train de jouer ${client.lavalink.players.size || 0} musiques 🎶`,
+            state: `${prefix}help | En train de jouer ${client.lavalink.players.size || 0} musiques 🎶`
         },
 
         {
             type: ActivityType.Custom,
-            name: `${prefix}help | Gère ${await getChannelsCount()} channel(s) 🗃️`,
-            state: `${prefix}help | Gère ${await getChannelsCount()} channel(s) 🗃️`
+            name: `${prefix}help | Gère ${await getChannelsCount() || 0} channel(s) 🗃️`,
+            state: `${prefix}help | Gère ${await getChannelsCount() || 0} channel(s) 🗃️`
         }
     ];
 

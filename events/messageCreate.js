@@ -34,6 +34,9 @@ module.exports = {
             cooldowns.set(message.author.id, now);
         }
 
+        const args = message.content.trim().split(/\s+/);
+        const command = args.shift().toLowerCase();
+
         const logsEmbed = new EmbedBuilder()
             .setColor(COLOR_EMBED)
             .setTitle("📥 Commande reçue !")
@@ -41,21 +44,9 @@ module.exports = {
             .setFooter({ text: `Guild : ${message.guild.name} (${message.guild.id})`, iconURL: message.guild.iconURL() })
             .setTimestamp();
 
-        await webhookClientLogs.edit({
-            name: `${client.user.username} | Logs`,
-            avatar: client.user.displayAvatarURL({ extension: "png", forceStatic: false, size: 1024 }),
+        webhookClientLogs.send({ embeds: [logsEmbed] }).catch((error) => {
+            console.error("Impossible d'envoyer le log de commande :", error);
         });
-
-        // Attempt to send the startup embed message to the webhook and catch any errors that occur during the sending process
-
-        try {
-            webhookClientLogs.send({ embeds: [logsEmbed] });
-        } catch (error) {
-            console.error(error);
-        }
-
-        const args = message.content.trim().split(/\s+/);
-        const command = args.shift().toLowerCase();
 
         if (command != prefix + 'ping' && command != prefix + 'help') {
             if (message && message.deletable) {
@@ -65,7 +56,9 @@ module.exports = {
             }
         }
 
-        let player = await getPlayer(client, message.guild.id);
+        let player = command === prefix + 'ping' || command === prefix + 'help'
+            ? null
+            : await getPlayer(client, message.guild.id);
         let track;
 
         switch (command) {
