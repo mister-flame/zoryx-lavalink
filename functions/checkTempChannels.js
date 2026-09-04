@@ -17,6 +17,11 @@ module.exports.deleteTmpChannels = async function deleteTmpChannels(client) {
 
     const dbTemp = await connectDB();
 
+    if (!dbTemp) {
+        console.error("Impossible de se connecter à la base de données. Veuillez vérifier le chemin d'accès à la base de données dans le fichier config.json ou dans les variables d'environnement.");
+        return;
+    }
+
 
     // Query the database to select all entries from the tempChannel table and iterate through the results. For each entry, it attempts to fetch the corresponding channel from the Discord client. If the channel cannot be fetched (e.g., it has been deleted), it logs the error and deletes the entry from the database. If the channel is successfully fetched and has no members, it also deletes the entry from the database and deletes the channel from Discord.
 
