@@ -15,6 +15,11 @@ module.exports.deleteTmpChannel = async function deleteTmpChannel(channelId, cha
 
     let dbTemp = await connectDB();
 
+    if (!dbTemp) {
+        console.error("Impossible de se connecter à la base de données. Veuillez vérifier le chemin d'accès à la base de données dans le fichier config.json ou dans les variables d'environnement.");
+        return;
+    }
+
     // Query the database to delete the entry corresponding to the specified channel ID
 
     query = `DELETE FROM tempChannel WHERE channelId = ${channelId};`;

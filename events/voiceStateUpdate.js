@@ -31,6 +31,11 @@ module.exports = {
     if (newstate.channel !== null) {
       const dbMainChannels = await connectDB();
 
+      if (!dbMainChannels) {
+        console.error("Impossible de se connecter à la base de données. Veuillez vérifier le chemin d'accès à la base de données dans le fichier config.json ou dans les variables d'environnement.");
+        return;
+      }
+
       query = `SELECT DISTINCT id, channelId FROM mainChannel WHERE channelId = ${newstate.channel.id};`;
       dbMainChannels.all(query, async (err, rows) => {
         if (err) {
@@ -47,6 +52,11 @@ module.exports = {
             }
 
             const dbTempChannels = await connectDB();
+
+            if (!dbTempChannels) {
+              console.error("Impossible de se connecter à la base de données. Veuillez vérifier le chemin d'accès à la base de données dans le fichier config.json ou dans les variables d'environnement.");
+              return;
+            }
 
             const newChannel = await newstate.guild.channels
               .create({
@@ -91,6 +101,12 @@ module.exports = {
 
     if (oldstate.channel !== null) {
       const dbTempChannels = await connectDB();
+
+      if (!dbTempChannels) {
+        console.error("Impossible de se connecter à la base de données. Veuillez vérifier le chemin d'accès à la base de données dans le fichier config.json ou dans les variables d'environnement.");
+        return;
+      }
+
       query = `SELECT DISTINCT channelId FROM tempChannel WHERE channelId = ${oldstate.channel.id};`;
       dbTempChannels.all(query, (err, rows) => {
         if (err) {

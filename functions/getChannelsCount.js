@@ -14,6 +14,11 @@ module.exports.getChannelsCount = async function getChannelsCount() {
 
     let dbTemp = await connectDB();
 
+    if (!dbTemp) {
+        console.error("Impossible de se connecter à la base de données. Veuillez vérifier le chemin d'accès à la base de données dans le fichier config.json ou dans les variables d'environnement.");
+        return;
+    }
+
     // Query the database to get the count of distinct channels and return it as a promise
 
     return new Promise((resolve, reject) => {
