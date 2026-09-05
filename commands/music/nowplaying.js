@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags, EmbedBuilder } = require('discord.js'
 const { getPlayer } = require('../../functions/getPlayer');
 const { COLOR_EMBED } = require('../../util/config');
 const { formatDuration } = require('../../functions/formatDuration');
+const { createUserEmbed } = require('../../functions/createUserEmbed');
 
 module.exports = {
     name: 'nowplaying',
@@ -10,19 +11,19 @@ module.exports = {
     async execute(interaction) {
 
         if (!interaction.member.voice.channel) {
-            return interaction.reply({ content: "⚠️ Tu dois être en vocal pour utiliser cette commande", flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
         }
 
         const player = await getPlayer(interaction.client, interaction.guild.id);
 
         if (!player) {
-            return interaction.reply({ content: '❌ Aucun player/morceau pour ce serveur.', flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun player/morceau pour ce serveur.')], flags: MessageFlags.Ephemeral });
         }
 
         track = player.queue.current;
 
         if (!track) {
-            return interaction.reply({ content: '❌ Aucun morceau en cours.', flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun morceau en cours.')], flags: MessageFlags.Ephemeral });
         }
 
         await interaction.deferReply();
@@ -42,7 +43,7 @@ module.exports = {
             .setTitle("🎶 Musique en cours de lecture :")
             .setDescription(`**[${track.info.title}](${track.info.uri})**\n${progressBar}\n\`${(await formatDuration(parseInt(currentTime))).join(":")} / ${track.info.isStream == false ? (await formatDuration(totalTime)).join(":") : "Stream 🔴"}\``)
             .setThumbnail(track.info.artworkUrl)
-            .setFooter({ text: `Demandé par ${track.info.requester.username}`, iconURL: track.info.requester.displayAvatarURL() })
+            .setFooter({ text: `Demandé par ${interaction.user.username}`, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp(track.info.requestDate);
         interaction.editReply({ embeds: [nowPlayingEmbed] }).then(msg => {
             setTimeout(() => msg.delete().catch(() => { }), 15000);

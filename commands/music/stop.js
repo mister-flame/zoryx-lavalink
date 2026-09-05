@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { getPlayer } = require('../../functions/getPlayer');
+const { createUserEmbed } = require('../../functions/createUserEmbed');
 
 module.exports = {
     name: 'stop',
@@ -8,20 +9,20 @@ module.exports = {
     async execute(interaction) {
 
         if (!interaction.member.voice.channel) {
-            return interaction.reply({ content: "⚠️ Tu dois être en vocal pour utiliser cette commande", flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
         }
 
         const player = await getPlayer(interaction.client, interaction.guild.id);
 
         if (!player) {
-            return interaction.reply({ content: '❌ Aucun player/morceau pour ce serveur.', flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun player/morceau pour ce serveur.')], flags: MessageFlags.Ephemeral });
         }
 
         await interaction.deferReply();
 
         player.stopPlaying();
         updateVoiceStatus(player.voiceChannelId);
-        return interaction.editReply({ content: '⏹️ Lecture arrêtée.' }).then(() => {
+        return interaction.editReply({ embeds: [createUserEmbed(interaction, '⏹️ Lecture arrêtée.')] }).then(() => {
             setTimeout(() => interaction.deleteReply().catch(() => { }), 15000);
         });
     },

@@ -1,7 +1,7 @@
 const { logPlayer } = require("../functions/logPlayer");
 const { getBestThumbnail } = require("../functions/getBestThumbnail");
 const { formatDuration } = require("../functions/formatDuration");
-const { EmbedBuilder, TextChannel } = require("discord.js");
+const { EmbedBuilder, TextChannel, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { updateVoiceStatus } = require("../functions/updateVoiceStatus");
 const { COLOR_EMBED } = require("../util/config");
 
@@ -71,6 +71,36 @@ module.exports = {
 
             player.mainMessage.edit({ embeds: [embed] });
         } else if (!player.mainMessage && channel && channel instanceof TextChannel) {
+
+            const playerButtons = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId("loopTrack")
+                        .setEmoji("🔂")
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(false),
+                    new ButtonBuilder()
+                        .setCustomId("loopQueue")
+                        .setEmoji("🔁")
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(false),
+                    new ButtonBuilder()
+                        .setCustomId("shuffle")
+                        .setEmoji("🔀")
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(false),
+                    new ButtonBuilder()
+                        .setCustomId("skip")
+                        .setEmoji("⏭️")
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(false),
+                    new ButtonBuilder()
+                        .setCustomId("leave")
+                        .setEmoji("🔌")
+                        .setStyle(ButtonStyle.Danger)
+                        .setDisabled(false),
+                );
+
             const playingEmbed = new EmbedBuilder()
                 .setColor(COLOR_EMBED)
                 .setTitle("🎶 Lecture en cours de :")
@@ -79,7 +109,7 @@ module.exports = {
                 .setFooter({ text: `Demandé par ${requesterName} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: requesterAvatar })
                 .setTimestamp(track.info.requestDate);
 
-            player.mainMessage = await channel.send({ embeds: [playingEmbed] });
+            player.mainMessage = await channel.send({ embeds: [playingEmbed], components: [playerButtons] }).catch((err) => { console.error("Impossible d'envoyer le message de lecture en cours :", err); });
         }
 
         if (channel && channel instanceof TextChannel && player.repeatMode != "track") {

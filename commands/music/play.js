@@ -3,6 +3,7 @@ const { COLOR_EMBED } = require('../../util/config');
 const { getPlayer } = require('../../functions/getPlayer');
 const { formatDuration } = require('../../functions/formatDuration');
 const { getBestThumbnail } = require('../../functions/getBestThumbnail');
+const { createUserEmbed } = require('../../functions/createUserEmbed');
 
 module.exports = {
     name: 'play',
@@ -64,23 +65,23 @@ module.exports = {
         const query = interaction.options.getString('query');
 
         if (!interaction.member.voice.channel) {
-            return interaction.reply({ content: "⚠️ Tu dois être en vocal pour utiliser cette commande", ephemeral: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
         }
 
         if (!query) {
-            return interaction.reply({ content: "⚠️ Tu dois fournir une vidéo à jouer", ephemeral: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois fournir une vidéo à jouer")], flags: MessageFlags.Ephemeral });
         }
 
         if (query === "invalid_voice_channel_-1") {
-            return interaction.reply({ content: "⚠️ Tu dois être en vocal pour utiliser cette commande", ephemeral: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
         }
 
         if (query === "no_results_found_-1") {
-            return interaction.reply({ content: "⚠️ Aucune vidéo trouvée pour cette recherche", ephemeral: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")], flags: MessageFlags.Ephemeral });
         }
 
         if (query === "error_occurred_-1") {
-            return interaction.reply({ content: "⚠️ Une erreur est survenue lors de la recherche de la vidéo", ephemeral: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Une erreur est survenue lors de la recherche de la vidéo")], flags: MessageFlags.Ephemeral });
         }
 
         const client = interaction.client;
@@ -112,7 +113,7 @@ module.exports = {
         if (!player.connected) await player.connect();
 
         if (!track) {
-            return interaction.reply({ content: "⚠️ Aucune vidéo trouvée pour cette recherche", flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")], flags: MessageFlags.Ephemeral });
         }
 
         await interaction.deferReply();

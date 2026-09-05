@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags, EmbedBuilder } = require('discord.js'
 const { getPlayer } = require('../../functions/getPlayer');
 const { COLOR_EMBED } = require('../../util/config');
 const { formatDuration } = require('../../functions/formatDuration');
+const { createUserEmbed } = require('../../functions/createUserEmbed');
 
 module.exports = {
     name: 'queue',
@@ -10,13 +11,13 @@ module.exports = {
     async execute(interaction) {
 
         if (!interaction.member.voice.channel) {
-            return interaction.reply({ content: "⚠️ Tu dois être en vocal pour utiliser cette commande", flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
         }
 
         const player = await getPlayer(interaction.client, interaction.guild.id);
 
         if (!player) {
-            return interaction.reply({ content: '❌ Aucun player/morceau pour ce serveur.', flags: MessageFlags.Ephemeral });
+            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun player/morceau pour ce serveur.')], flags: MessageFlags.Ephemeral });
         }
 
         await interaction.deferReply();
@@ -50,7 +51,7 @@ module.exports = {
                 .setTitle("📜 Liste des 10 prochaines musiques :")
                 .setThumbnail(player.queue.current.info.artworkUrl)
                 .setDescription((player.queue.tracks.length === 0) && (!player.queue.current) ? "Aucune musique dans la file d'attente." : queue)
-                .setFooter({ text: `${player.queue.tracks.length + 1} musique(s) au total`, iconURL: interaction.user.displayAvatarURL() })
+                .setFooter({ text: `Demandé par ${interaction.user.username} • ${player.queue.tracks.length + 1} musique(s) au total`, iconURL: interaction.user.displayAvatarURL() })
                 .setTimestamp(new Date());
 
             return interaction.editReply({ embeds: [queueEmbed] }).then(() => {
@@ -61,7 +62,7 @@ module.exports = {
                 .setColor(COLOR_EMBED)
                 .setTitle("📜 Liste des 10 prochaines musiques :")
                 .setDescription("Aucune musique dans la file d'attente.")
-                .setFooter({ text: `${player.queue.tracks.length} musique(s) au total`, iconURL: interaction.user.displayAvatarURL() })
+                .setFooter({ text: `Demandé par ${interaction.user.username} • ${player.queue.tracks.length} musique(s) au total`, iconURL: interaction.user.displayAvatarURL() })
                 .setTimestamp(new Date());
 
             return interaction.editReply({ embeds: [queueEmbed] }).then(() => {
