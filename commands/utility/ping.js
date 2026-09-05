@@ -45,7 +45,11 @@ module.exports = {
             .setStyle(ButtonStyle.Link)
             .setURL("https://github.com/mister-flame/zoryx-lavalink");
 
+        const addButton = new ButtonBuilder()
+            .setLabel("Ajouter le bot")
+            .setStyle(ButtonStyle.Link)
+            .setURL("https://discord.com/oauth2/authorize?client_id=1424383941502173306");
 
-        return interaction.editReply({ embeds: [pingEmbed], components: [new ActionRowBuilder().addComponents(linkButton)] });
+        return interaction.editReply({ embeds: [pingEmbed], components: [new ActionRowBuilder().addComponents(linkButton, addButton)] });
     },
 };

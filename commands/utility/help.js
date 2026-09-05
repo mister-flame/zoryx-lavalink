@@ -7,6 +7,8 @@ module.exports = {
     data: new SlashCommandBuilder().setName('help').setDescription('Replies with help information!'),
     async execute(interaction) {
 
+        await interaction.deferReply();
+
         const helpEmbed = new EmbedBuilder()
             .setColor(COLOR_EMBED)
             .setTitle("📜 Commandes disponibles :")
@@ -31,7 +33,12 @@ module.exports = {
             .setStyle(ButtonStyle.Link)
             .setURL("https://github.com/mister-flame/zoryx-lavalink");
 
+        const addButton = new ButtonBuilder()
+            .setLabel("Ajouter le bot")
+            .setStyle(ButtonStyle.Link)
+            .setURL("https://discord.com/oauth2/authorize?client_id=1424383941502173306");
 
-        return interaction.editReply({ embeds: [helpEmbed], components: [new ActionRowBuilder().addComponents(linkButton)] });
+
+        return interaction.editReply({ embeds: [helpEmbed], components: [new ActionRowBuilder().addComponents(linkButton, addButton)] });
     },
 };
