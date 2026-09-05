@@ -4,7 +4,7 @@ const { getPlayer } = require('../../functions/getPlayer');
 
 module.exports = {
     cooldown: 3,
-    data: new SlashCommandBuilder().setName('ping').setDescription('Replies with Pong!'),
+    data: new SlashCommandBuilder().setName('ping').setDescription('Répond avec Pong !'),
     async execute(interaction) {
 
         const client = interaction.client;
@@ -34,7 +34,9 @@ module.exports = {
             .setFooter({ text: `Demandé par ${interaction.user.username}`, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
-        if (await getPlayer(client, interaction.guild.id)) {
+        const player = await getPlayer(client, interaction.guild.id);
+
+        if (player) {
             pingEmbed.addFields({ name: "🎵 Player Ping :", value: `\`${player.ping.ws / 1000}s (${player.ping.ws}ms)\`` });
         }
 
