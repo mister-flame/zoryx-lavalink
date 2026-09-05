@@ -6,7 +6,7 @@ const path = require('path');
 module.exports = {
     name: 'help',
     cooldown: 3,
-    data: new SlashCommandBuilder().setName('help').setDescription('Replies with help information!'),
+    data: new SlashCommandBuilder().setName('help').setDescription('Affiche les commandes disponibles !'),
     async execute(interaction) {
 
         await interaction.deferReply();
@@ -14,6 +14,7 @@ module.exports = {
         const commandsPath = path.join(__dirname, '..');
         const musicCommands = fs.readdirSync(path.join(commandsPath, 'music')).filter(file => file.endsWith('.js')).join(', ').replace(/\.js/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
         const utilityCommands = fs.readdirSync(path.join(commandsPath, 'utility')).filter(file => file.endsWith('.js')).join(', ').replace(/\.js/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
+        const funCommands = fs.readdirSync(path.join(commandsPath, 'fun')).filter(file => file.endsWith('.js')).join(', ').replace(/\.js/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
 
         const helpEmbed = new EmbedBuilder()
             .setColor(COLOR_EMBED)
@@ -22,6 +23,7 @@ module.exports = {
                 `Voici les commandes que tu peux utiliser avec ce bot de musique Lavalink :\n\n` +
                 `**Musique** :\n\`${musicCommands}\`\n\n` +
                 `**Utilité** :\n\`${utilityCommands}\`\n\n` +
+                `**Fun** :\n\`${funCommands}\`\n\n` +
                 `Amuse-toi bien ! 🎶`
             )
             .setFooter({ text: `Demandé par ${interaction.user.username}`, iconURL: interaction.user.displayAvatarURL() })
