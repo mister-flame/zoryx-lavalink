@@ -4,7 +4,6 @@ const { getPlayer } = require("../functions/getPlayer");
 const { getBestThumbnail } = require("../functions/getBestThumbnail");
 const { formatDuration } = require("../functions/formatDuration");
 const { updateVoiceStatus } = require("../functions/updateVoiceStatus");
-const { LavalinkManager } = require("lavalink-client");
 const cooldowns = new Collection();
 const ms = require("ms");
 
