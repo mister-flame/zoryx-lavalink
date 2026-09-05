@@ -40,7 +40,7 @@ module.exports = {
             const logsEmbed = new EmbedBuilder()
                 .setColor(COLOR_EMBED)
                 .setTitle("📥 Interaction reçue !")
-                .setDescription(`**Auteur :** ${interaction.user.tag} (${interaction.user.id})\n**Salon :** ${interaction.channel.name} (${interaction.channel.id})\n**Focus :** \`${interaction.options.getFocused()}\`\n` + `**Options :** \`${interaction.options.data.map(option => `${option.name}: ${option.value}`).join(", ")}\``)
+                .setDescription(`**Auteur :** ${interaction.user.tag} (${interaction.user.id})\n**Salon :** ${interaction.channel.name} (${interaction.channel.id})\n**Commande :** \`${interaction.commandName}\`\n` + `**Options :** \`${interaction.options.data.map(option => `${option.name}: ${option.value}`).join(", ")}\``)
                 .setFooter({ text: `Guild : ${interaction.guild.name} (${interaction.guild.id})`, iconURL: interaction.guild.iconURL() })
                 .setTimestamp();
 
