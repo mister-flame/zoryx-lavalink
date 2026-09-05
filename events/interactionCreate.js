@@ -1,4 +1,7 @@
-const { Collection, MessageFlags } = require("discord.js");
+const { Collection, MessageFlags, WebhookClient, EmbedBuilder } = require("discord.js");
+const { LOGS_WEBHOOK, COLOR_EMBED } = require("../util/config");
+
+const webhookClientLogs = new WebhookClient({ url: LOGS_WEBHOOK });
 
 module.exports = {
     name: "interactionCreate",
@@ -22,15 +25,29 @@ module.exports = {
 
         const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1_000;
         if (timestamps.has(interaction.user.id)) {
-            const expiredTimestamp = Math.round(expirationTime / 1_000);
-            return interaction.reply({
-                content: `Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`,
-                flags: MessageFlags.Ephemeral,
-            });
+            const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
+            if (now < expirationTime) {
+                const expiredTimestamp = Math.round(expirationTime / 1_000);
+                return interaction.reply({
+                    content: `Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`,
+                    flags: MessageFlags.Ephemeral,
+                });
+            }
         }
 
         timestamps.set(interaction.user.id, now);
         setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+
+        const logsEmbed = new EmbedBuilder()
+            .setColor(COLOR_EMBED)
+            .setTitle("📥 Interaction reçue !")
+            .setDescription(`**Auteur :** ${interaction.user.tag} (${interaction.user.id})\n**Salon :** ${interaction.channel.name} (${interaction.channel.id})\n**Interaction :** \`${interaction.commandName}\``)
+            .setFooter({ text: `Guild : ${interaction.guild.name} (${interaction.guild.id})`, iconURL: interaction.guild.iconURL() })
+            .setTimestamp();
+
+        webhookClientLogs.send({ embeds: [logsEmbed] }).catch((error) => {
+            console.error("Impossible d'envoyer le log de l'interaction :", error);
+        });
 
         try {
             await command.execute(interaction);
