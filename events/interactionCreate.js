@@ -40,7 +40,7 @@ module.exports = {
             const logsEmbed = new EmbedBuilder()
                 .setColor(COLOR_EMBED)
                 .setTitle("📥 Interaction reçue !")
-                .setDescription(`**Auteur :** ${interaction.user.tag} (${interaction.user.id})\n**Salon :** ${interaction.channel.name} (${interaction.channel.id})\n**Interaction :** \`${interaction.commandName}\``)
+                .setDescription(`**Auteur :** ${interaction.user.tag} (${interaction.user.id})\n**Salon :** ${interaction.channel.name} (${interaction.channel.id})\n**Focus :** \`${interaction.options.getFocused()}\`\n` + `**Options :** \`${interaction.options.data.map(option => `${option.name}: ${option.value}`).join(", ")}\``)
                 .setFooter({ text: `Guild : ${interaction.guild.name} (${interaction.guild.id})`, iconURL: interaction.guild.iconURL() })
                 .setTimestamp();
 
@@ -112,6 +112,17 @@ module.exports = {
                 console.error(`No command matching ${interaction.customId} was found.`);
                 return;
             }
+
+            const logsEmbed = new EmbedBuilder()
+                .setColor(COLOR_EMBED)
+                .setTitle("📥 Bouton reçu !")
+                .setDescription(`**Auteur :** ${interaction.user.tag} (${interaction.user.id})\n**Salon :** ${interaction.channel.name} (${interaction.channel.id})\n**Bouton :** \`${interaction.customId}\``)
+                .setFooter({ text: `Guild : ${interaction.guild.name} (${interaction.guild.id})`, iconURL: interaction.guild.iconURL() })
+                .setTimestamp();
+
+            webhookClientLogs.send({ embeds: [logsEmbed] }).catch((error) => {
+                console.error("Impossible d'envoyer le log de l'interaction :", error);
+            });
 
             try {
                 await command.execute(interaction, (interaction.customId === "loopTrack" ? "track" : "queue") ? (interaction.customId === "loopTrack" ? "track" : "queue") : null);
