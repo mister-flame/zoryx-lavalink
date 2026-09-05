@@ -9,10 +9,11 @@ module.exports = {
         .addStringOption(option => option.setName('question').setDescription('La question à poser au bot').setRequired(true)),
     async execute(interaction) {
 
+        const question = interaction.options.getString('question');
         let answer;
 
         try {
-            answer = await askMistral(interaction.options.getString('question'));
+            answer = await askMistral(question);
         } catch (error) {
             console.error('Error occurred while asking Mistral:', error);
             return interaction.editReply({ content: 'Une erreur est survenue lors de la réponse du bot.', flags: MessageFlags.Ephemeral });
@@ -21,6 +22,7 @@ module.exports = {
         await interaction.deferReply();
 
         const askEmbed = new EmbedBuilder()
+            .setTitle("❓ " + question)
             .setColor(COLOR_EMBED)
             .setDescription(answer)
             .setFooter({ text: `Demandé par ${interaction.user.username}`, iconURL: interaction.user.displayAvatarURL() })
