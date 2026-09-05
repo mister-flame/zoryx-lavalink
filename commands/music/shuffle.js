@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { getPlayer } = require('../../functions/getPlayer');
 
 module.exports = {
+    name: 'shuffle',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('shuffle').setDescription('Mélanger la file d\'attente'),
     async execute(interaction) {

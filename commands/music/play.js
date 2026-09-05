@@ -5,6 +5,7 @@ const { formatDuration } = require('../../functions/formatDuration');
 const { getBestThumbnail } = require('../../functions/getBestThumbnail');
 
 module.exports = {
+    name: 'play',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('play').setDescription('Jouer une vidéo depuis YouTube ou d\'autres plateformes supportées!')
         .addStringOption((option) => option.setName('query').setDescription('La vidéo à jouer').setAutocomplete(true).setRequired(true)),

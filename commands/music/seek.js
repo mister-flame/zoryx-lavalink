@@ -4,6 +4,7 @@ const { formatDuration } = require('../../functions/formatDuration');
 const ms = require('ms');
 
 module.exports = {
+    name: 'seek',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('seek').setDescription('Se déplacer dans la musique')
         .addStringOption(option =>

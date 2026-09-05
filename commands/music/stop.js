@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { getPlayer } = require('../../functions/getPlayer');
 
 module.exports = {
+    name: 'stop',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('stop').setDescription('Arrêter la lecture et vider la file d\'attente !'),
     async execute(interaction) {

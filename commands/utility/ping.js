@@ -3,6 +3,7 @@ const { COLOR_EMBED } = require('../../util/config');
 const { getPlayer } = require('../../functions/getPlayer');
 
 module.exports = {
+    name: 'ping',
     cooldown: 3,
     data: new SlashCommandBuilder().setName('ping').setDescription('Répond avec Pong !'),
     async execute(interaction) {

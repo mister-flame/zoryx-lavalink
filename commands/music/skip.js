@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { getPlayer } = require('../../functions/getPlayer');
 
 module.exports = {
+    name: 'skip',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('skip').setDescription('Ignorer le morceau actuel !')
         .addIntegerOption((option) => option.setName('nombre').setDescription('Le nombre de morceaux à ignorer').setMinValue(1).setMaxValue(10)),

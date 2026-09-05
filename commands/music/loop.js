@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags, TextChannel } = require
 const { getPlayer } = require('../../functions/getPlayer');
 
 module.exports = {
+    name: 'loop',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('loop').setDescription('Mettre en boucle la lecture !')
         .addStringOption((option) => option.setName('mode').setDescription('Le mode de boucle').setRequired(true)

@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { getPlayer } = require('../../functions/getPlayer');
 
 module.exports = {
+    name: 'leave',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('leave').setDescription('Quitter le vocal et vider la file d\'attente !'),
     async execute(interaction) {

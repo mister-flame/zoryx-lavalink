@@ -4,6 +4,7 @@ const { COLOR_EMBED } = require('../../util/config');
 const { formatDuration } = require('../../functions/formatDuration');
 
 module.exports = {
+    name: 'nowplaying',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('nowplaying').setDescription('Voir le morceau en cours !'),
     async execute(interaction) {

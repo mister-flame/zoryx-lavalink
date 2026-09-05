@@ -4,6 +4,7 @@ const { COLOR_EMBED } = require('../../util/config');
 const { formatDuration } = require('../../functions/formatDuration');
 
 module.exports = {
+    name: 'queue',
     cooldown: 5,
     data: new SlashCommandBuilder().setName('queue').setDescription('Voir la file d\'attente !'),
     async execute(interaction) {
