@@ -2,7 +2,6 @@ const { Collection, MessageFlags } = require("discord.js");
 
 module.exports = {
     name: "interactionCreate",
-    once: true,
     async execute(client, interaction) {
 
         if (!interaction.isChatInputCommand()) return;
