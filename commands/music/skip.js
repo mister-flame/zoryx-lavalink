@@ -32,7 +32,13 @@ module.exports = {
             return player.stopPlaying();
         }
 
-        const value = interaction.options.getInteger('nombre');
+        let value;
+
+        if (interaction.options && interaction.options.getInteger('nombre')) {
+            value = interaction.options.getInteger('nombre');
+        } else {
+            value = 0;
+        }
 
         player.skip(value ? value - 1 : 0);
         return interaction.editReply({ embeds: [createUserEmbed(interaction, `${value ? `🔂 Je passe au morceau \`${value}\`` : '⏭️ Morceau suivant.'}`)] }).then(() => {

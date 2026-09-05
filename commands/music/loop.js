@@ -28,7 +28,7 @@ module.exports = {
 
         let choice = p_mode;
 
-        if (interaction.options) {
+        if (interaction.options && interaction.options.getString('mode')) {
             choice = interaction.options.getString('mode');
         } else if (!p_mode) {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, `❌ Précise "track", "queue" ou "off". (Actuellement : \`${player.repeatMode}\`)`)] }).then(() => {
