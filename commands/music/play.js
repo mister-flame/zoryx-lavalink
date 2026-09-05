@@ -132,7 +132,7 @@ module.exports = {
             .setTitle("➕ Ta musique a été ajoutée à la file d'attente :")
             .setDescription(`**[${track.info.title}](${track.info.uri})** | Durée : \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``)
             .setThumbnail(track.info.artworkUrl)
-            .setFooter({ text: `Demandé par ${track.info.requester.username} | Position n°${player.queue.tracks.length}`, iconURL: track.info.requester.displayAvatarURL() })
+            .setFooter({ text: `Demandé par ${track.info.requester.username} | Position n°${player.queue.current ? player.queue.current + 1 : 1}`, iconURL: track.info.requester.displayAvatarURL() })
             .setTimestamp(track.info.requestDate);
 
         await interaction.editReply({ embeds: [addSong] }).then(() => {
