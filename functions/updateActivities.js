@@ -1,7 +1,6 @@
 // Dependency imports
 
 const { ActivityType } = require("discord.js");
-const { prefix } = require("../util/config");
 const { getChannelsCount } = require("../functions/getChannelsCount");
 
 /*

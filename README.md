@@ -1,59 +1,58 @@
-﻿# Zoryx Lavalink Bot
+﻿# Zoryx Lavalink
 
-A French Discord music bot built with `discord.js`, `lavalink-client`, and SQLite. It plays music via Lavalink and automatically manages temporary voice channels.
+Zoryx Lavalink is a French Discord music bot built with `discord.js`, `lavalink-client`, and SQLite. It plays music through Lavalink and can create temporary voice channels for members who join configured main channels.
 
 ## Features
 
-- Lavalink-based music playback for Discord voice channels
-- Search and play songs from YouTube links or search queries
-- Queue management with skip, stop, shuffle, loop, replay, and seek
-- Now playing and bot latency commands
-- Automatic creation of temporary voice channels from configured main channels
-- Automatic deletion of empty temporary channels using SQLite
-- Configurable command prefix, embed color, webhook notifications, and Lavalink node settings
+- Music playback through a Lavalink node.
+- Search or play tracks from a query or URL.
+- Queue controls: skip, stop, shuffle, loop, replay, seek, and queue display.
+- Now-playing and latency information.
+- Temporary voice-channel creation and cleanup.
+- SQLite persistence for temporary-channel tracking.
+- Global Discord slash-command registration at startup.
 
 ## Requirements
 
-- Node.js 18 or newer
-- A Lavalink server reachable by the bot
-- A Discord bot token
-- SQLite database file for temporary channel management
+- Node.js 18 or newer.
+- A Discord application and bot token.
+- A running Lavalink server reachable by the bot.
+- A Discord bot installation with the required permissions and intents.
 
 ## Installation
-
-1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Create and configure `config.json` in the repository root.
-
-3. Start the bot:
+Create a `config.json` file in the project root, or provide the supported values through environment variables. Start the bot with:
 
 ```bash
 node index.js
 ```
 
+On startup, the bot loads commands from `commands/`, registers them as global application commands, connects to Discord, and initializes the Lavalink manager when the client is ready.
+
 ## Configuration
 
-The bot loads configuration from `config.json` if present, otherwise it falls back to environment variables.
+`util/config.js` reads values from `config.json` when that file exists. When it does not exist, it falls back to environment variables.
 
-Example `config.json`:
+Example configuration with placeholders only:
 
 ```json
 {
-  "token": "YOUR_DISCORD_BOT_TOKEN",
-  "prefix": "?",
-  "COLOR_EMBED": "#6102cc",
-  "START_WEBHOOK": "https://discord.com/api/webhooks/your-webhook-url",
+  "token": "DISCORD_BOT_TOKEN",
+  "clientId": "DISCORD_APPLICATION_ID",
+  "COLOR_EMBED": "#0099ff",
+  "START_WEBHOOK": "DISCORD_STARTUP_WEBHOOK_URL",
+  "LOGS_WEBHOOK": "DISCORD_LOG_WEBHOOK_URL",
   "dbPath": "./databases/tcDB.db",
   "node": {
-    "authorization": "YOUR_LAVALINK_PASSWORD",
-    "host": "lavalink.example.com",
-    "port": 443,
-    "id": "Test Node",
-    "secure": true,
+    "authorization": "LAVALINK_PASSWORD",
+    "host": "LAVALINK_HOST",
+    "port": 2333,
+    "id": "main",
+    "secure": false,
     "nodeType": "youtube",
     "retryDelay": 2000,
     "retryTimespan": 10,
@@ -63,91 +62,63 @@ Example `config.json`:
 }
 ```
 
-### Config keys
+Configuration values:
 
 - `token`: Discord bot token.
-- `prefix`: Command prefix used by the bot (example: `?`).
-- `COLOR_EMBED`: Hex color code used for bot embeds.
-- `START_WEBHOOK`: Discord webhook URL used for startup notifications.
-- `dbPath`: Path to the SQLite database file used for temp channel tracking.
-- `node`: Lavalink node configuration object.
-  - `authorization`: Lavalink password.
-  - `host`: Lavalink host address.
-  - `port`: Lavalink port.
-  - `id`: Node identifier.
-  - `secure`: Whether to use TLS/HTTPS.
-  - `nodeType`: Node platform type (for example `youtube`).
-  - `retryDelay`: Delay between reconnection attempts in milliseconds.
-  - `retryTimespan`: Number of retry attempts.
-  - `autoReconnect`: Whether the Lavalink node should reconnect automatically.
-  - `requestTimoutMS`: Request timeout in milliseconds.
+- `clientId`: Discord application ID used for slash-command registration.
+- `COLOR_EMBED`: Default embed color.
+- `START_WEBHOOK`: Webhook used for startup notifications.
+- `LOGS_WEBHOOK`: Webhook used for interaction logs.
+- `dbPath`: SQLite database path for temporary-channel records.
+- `node`: Lavalink connection options, including host, port, authorization, TLS mode, and retry settings.
 
-## Commands
+Do not commit real tokens, passwords, webhook URLs, or private hostnames. Keep local configuration outside version control where possible.
 
-All commands use the configured prefix.
+## Slash commands
 
-- `prefix + help` - Show available commands.
-- `prefix + ping` - Show bot latency and Lavalink node latency.
-- `prefix + play <link or search>` - Play a song or add it to the queue.
-- `prefix + skip [number]` - Skip the current track or skip ahead by the given number of tracks.
-- `prefix + stop` - Stop playback and clear the queue.
-- `prefix + leave` - Disconnect the bot from the voice channel.
-- `prefix + loop <track|queue|off>` - Set the repeat mode for the current track or queue.
-- `prefix + queue` - Display the current queue and the next tracks.
-- `prefix + replay` - Replay the current track.
-- `prefix + nowplaying` - Show the currently playing track and progress.
-- `prefix + shuffle` - Shuffle the queue.
-- `prefix + seek <duration>` - Seek to a specific position in the current track.
+Commands are registered globally and are used with `/` in Discord.
 
-### Notes on commands
+| Command | Description | Options |
+| --- | --- | --- |
+| `/help` | Show available commands. | None |
+| `/ping` | Show Discord and Lavalink latency. | None |
+| `/play` | Play or queue a track. | `query` required |
+| `/skip` | Skip the current track or several tracks. | `nombre` optional, 1-10 |
+| `/stop` | Stop playback and clear the queue. | None |
+| `/leave` | Disconnect from the voice channel. | None |
+| `/loop` | Set the loop mode. | `mode` required: `track`, `queue`, or `off` |
+| `/queue` | Display the current queue. | None |
+| `/replay` | Replay the current track. | None |
+| `/nowplaying` | Show the current track and progress. | None |
+| `/shuffle` | Shuffle the queue. | None |
+| `/seek` | Seek within the current track. | `time` required |
 
-- `play` supports individual YouTube video links and search queries.
-- Playlists or non-YouTube platforms are not fully supported by the current implementation.
-- `seek` accepts formats like `1m30s`, `90s`, `1:00`, or `1:00:00`.
+The `/seek` command accepts values such as `1m30s`, `90s`, `1:00`, or `1:00:00`. The `/play` command enables autocomplete for search queries.
 
-## How it works
+## Temporary voice channels
 
-### `index.js`
+The `voiceStateUpdate` handler watches the configured main channels stored in the `mainChannel` SQLite table. When a member joins one, the bot creates a private temporary voice channel and moves the member into it. Empty temporary channels are removed and tracked records are cleaned up.
 
-- Creates the Discord client with required intents.
-- Loads event handlers dynamically from `events/`.
-- Logs in using the token from configuration.
-
-### `events/clientReady.js`
-
-- Initializes the `LavalinkManager` with the configured node.
-- Registers Lavalink event listeners.
-- Sets periodic bot activity updates.
-- Sends a startup embed to the configured webhook.
-- Cleans up leftover temporary voice channels on startup.
-
-### `events/messageCreate.js`
-
-- Handles command parsing and bot responses.
-- Creates or retrieves a Lavalink player per guild.
-- Manages playback, queue, loop, shuffle, seek, and metadata embeds.
-
-### `events/voiceStateUpdate.js`
-
-- Creates temporary voice channels when a user joins a configured main voice channel.
-- Deletes temporary channels when they become empty.
-- Stores channel references in SQLite for cleanup.
+The database must exist at the configured `dbPath` and contain the tables expected by the channel-management functions.
 
 ## Project structure
 
-- `index.js` - Bot initialization and event loader.
-- `events/` - Discord event handlers.
-- `functions/` - Helper functions for Lavalink, database access, channel cleanup, and formatting.
-- `lavalink-events/` - Lavalink-specific event handlers.
-- `util/config.js` - Configuration loader supporting `config.json` and environment variables.
-- `databases/` - Local SQLite database files.
+```text
+index.js             Discord client, command loading, registration, and login
+commands/             Slash commands grouped by category
+events/               Discord event handlers
+functions/            Lavalink, database, channel, and formatting helpers
+lavalink-events/      Lavalink player event handlers
+util/config.js        Configuration loader
+```
 
-## Notes
+## Development notes
 
-- Make sure Lavalink is running and accessible before starting the bot.
-- `config.json` is optional, but recommended for local development.
-- The bot uses SQLite to persist temp channel state so deleted channels are tracked correctly.
+- Keep Lavalink running and reachable before starting the bot.
+- Global slash-command updates can take time to appear in every Discord server.
+- `messageCreate.js` is currently retained as an event module, but slash commands are handled by `interactionCreate.js`.
+- The package currently does not define an automated test script.
 
 ## License
 
-Licensed under `ISC`.
+Licensed under the ISC license.

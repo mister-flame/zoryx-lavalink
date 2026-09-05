@@ -7,7 +7,6 @@ try {
 }
 
 exports.token = config ? config.token : process.env.token;
-exports.prefix = config ? config.prefix : process.env.prefix || "!";
 exports.node = config ? config.node : process.env.node;
 exports.START_WEBHOOK = config ? config.START_WEBHOOK : process.env.START_WEBHOOK;
 exports.COLOR_EMBED = config ? config.COLOR_EMBED || "#0099ff" : process.env.COLOR_EMBED || "#0099ff";
