@@ -78,7 +78,7 @@ module.exports = {
         });
 
         client.lavalink.nodeManager.on("reconnecting", (node: LavalinkNode) => {
-            console.log(`Node ${node.options.id} se reconnecte !`);
+            console.log(`Node ${node.options.id} reconnexion en cours...`);
 
             // Reconnect all players that were previously playing before the node disconnected
             for (const [_, player] of client.lavalink.players) {
