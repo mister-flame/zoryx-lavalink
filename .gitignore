@@ -4,3 +4,5 @@
 /config.json
 # Ignore databases files
 /databases/
+# Ignore generated ts files
+/dist

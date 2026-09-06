@@ -1,0 +1,15 @@
+const { default: axios } = require("axios");
+const { token } = require("../util/config")
+
+/**
+ * Function to set the voice's status to a certain state
+ * @param {String} channelId the id of the channel to set the status
+ * @param {String} status the status to set
+ */
+
+export async function updateVoiceStatus(channelId: string, status = '') {
+
+    // Make a PUT request to the Discord API to update the voice status of the specified channel with the provided status, using the bot token for authorization
+
+    await axios.put(`https://discord.com/api/v10/channels/${channelId}/voice-status`, { status: status.length > 0 ? status : '' }, { headers: { Authorization: `Bot ${token}` } });
+};
