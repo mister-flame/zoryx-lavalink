@@ -8,7 +8,7 @@ import path from "path";
 import { deleteTmpChannels } from "../functions/checkTempChannels";
 import { updateActivities } from "../functions/updateActivities";
 
-const config = require("../../util/config") as BotConfig;
+const config = require("../util/config") as BotConfig;
 
 if (!config.token || !config.clientId) {
     throw new Error("Missing token or clientId in src/config.json or environment variables.");
