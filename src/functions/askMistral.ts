@@ -7,7 +7,7 @@ if (!config.token || !config.clientId) {
 
 const { API_KEY } = config;
 
-export async function askMistral(prompt: string) {
+export async function askMistral(prompt: string, behaviour: string) {
     const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -21,7 +21,7 @@ export async function askMistral(prompt: string) {
             messages: [
                 {
                     role: 'system',
-                    content: 'Réponds de façon brève et concise, en 2-3 phrases maximum. Va droit au but, sans reformulation inutile.'
+                    content: behaviour
                 },
                 { role: 'user', content: prompt }
             ]

@@ -14,14 +14,17 @@ module.exports = {
     name: 'ask',
     cooldown: 3,
     data: new SlashCommandBuilder().setName('ask').setDescription('Pose une question au bot !')
-        .addStringOption(option => option.setName('question').setDescription('La question à poser au bot').setRequired(true)),
+        .addStringOption(option => option.setName('question').setDescription('La question à poser au bot').setRequired(true))
+        .addStringOption(option => option.setName('comportement').setDescription('Le comportement que l\'IA doit avoir au moment de répondre à la question').setRequired(true)),
     async execute(interaction: ChatInputCommandInteraction) {
 
         const question = interaction.options.getString('question') as string;
+        const behaviour = interaction.options.getString('comportement') as string;
+
         let answer;
 
         try {
-            answer = await askMistral(question);
+            answer = await askMistral(question, behaviour);
         } catch (error) {
             console.error('Error occurred while asking Mistral:', error);
             return interaction.reply({ content: 'Une erreur est survenue lors de la réponse du bot.', flags: MessageFlags.Ephemeral });
