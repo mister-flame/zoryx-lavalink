@@ -1,6 +1,6 @@
 ﻿# Zoryx Lavalink
 
-Zoryx Lavalink is a French Discord music bot built with `discord.js`, `lavalink-client`, and SQLite. It plays music through Lavalink and can create temporary voice channels for members who join configured main channels.
+Zoryx Lavalink is a French Discord music bot built with TypeScript, `discord.js`, `lavalink-client`, and SQLite. It plays music through Lavalink and can create temporary voice channels for members who join configured main channels.
 
 ## Features
 
@@ -21,21 +21,63 @@ Zoryx Lavalink is a French Discord music bot built with `discord.js`, `lavalink-
 
 ## Installation
 
+Install the dependencies from the project root:
+
 ```bash
 npm install
 ```
 
-Create a `config.json` file in the project root, or provide the supported values through environment variables. Start the bot with:
+Create a `config.json` file in the project root, or provide the supported values through environment variables. The configuration loader is `src/util/config.ts`.
 
-```bash
-node index.js
+## TypeScript compilation and launch
+
+The source code is stored in `src/`. The `tsconfig.json` compiler configuration builds it into `dist/`:
+
+```text
+src/index.ts       -> dist/index.js
+src/events/*.ts    -> dist/events/*.js
+src/functions/*.ts -> dist/functions/*.js
 ```
 
-On startup, the bot loads commands from `commands/`, registers them as global application commands, connects to Discord, and initializes the Lavalink manager when the client is ready.
+Build the project with:
+
+```bash
+npm run build
+```
+
+This runs `tsc`, checks the TypeScript project, and writes compiled JavaScript files to `dist/`. It does not start the bot. The generated `dist/` directory is ignored by Git and should normally be rebuilt during deployment.
+
+Start the compiled bot after a successful build with:
+
+```bash
+npm start
+```
+
+The `start` script runs `node .`. The `main` field in `package.json` points to `dist/index.js`, so this launches the compiled entrypoint.
+
+For development, use:
+
+```bash
+npm run dev
+```
+
+This runs `tsx watch src/index.ts`, which executes the TypeScript source directly and restarts it when source files change. It does not create the production `dist/` output.
+
+The production sequence is:
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+On startup, the bot loads commands, registers them as global application commands, connects to Discord, and initializes the Lavalink manager when the client is ready.
+
+Do not run `npm start` before `npm run build` unless a current `dist/` directory already exists.
 
 ## Configuration
 
-`util/config.js` reads values from `config.json` when that file exists. When it does not exist, it falls back to environment variables.
+`src/util/config.ts` reads values from the root `config.json` when that file exists. When it does not exist, it falls back to environment variables. The root configuration file is ignored by Git and should not be committed.
 
 Example configuration with placeholders only:
 
@@ -104,19 +146,22 @@ The database must exist at the configured `dbPath` and contain the tables expect
 ## Project structure
 
 ```text
-index.js             Discord client, command loading, registration, and login
-commands/             Slash commands grouped by category
-events/               Discord event handlers
-functions/            Lavalink, database, channel, and formatting helpers
-lavalink-events/      Lavalink player event handlers
-util/config.js        Configuration loader
+src/index.ts              Discord client, command loading, registration, and login
+src/commands/              Slash commands grouped by category
+src/events/                Discord event handlers
+src/functions/             Lavalink, database, channel, and formatting helpers
+src/lavalink-events/       Lavalink player event handlers
+src/types/                 Shared TypeScript types
+src/util/config.ts         Configuration loader
+tsconfig.json              TypeScript compiler configuration
+dist/                      Generated JavaScript output; do not edit manually
 ```
 
 ## Development notes
 
 - Keep Lavalink running and reachable before starting the bot.
 - Global slash-command updates can take time to appear in every Discord server.
-- `messageCreate.js` is currently retained as an event module, but slash commands are handled by `interactionCreate.js`.
+- Slash commands are handled by `src/events/interactionCreate.ts`.
 - The package currently does not define an automated test script.
 
 ## License
