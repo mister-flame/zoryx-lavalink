@@ -26,7 +26,7 @@ const client = new Client({
 client.commands = new Collection();
 client.cooldowns = new Collection();
 
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(process.cwd(), 'dist', 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
@@ -77,7 +77,7 @@ const rest = new REST().setToken(token);
 
 // Dynamically load event handlers from the "events" directory and register them to the client
 
-const eventsPath = path.join(__dirname, "events");
+const eventsPath = path.join(process.cwd(), "dist", "events");
 const eventFiles = fs
   .readdirSync(eventsPath)
   .filter((file: string) => file.endsWith(".js"));

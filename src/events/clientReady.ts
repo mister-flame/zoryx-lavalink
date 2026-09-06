@@ -113,7 +113,7 @@ module.exports = {
 
         // Load and set up event listeners for all Lavalink events defined in the "lavalink-events" directory
 
-        const eventsPath = path.join(__dirname, "../lavalink-events");
+        const eventsPath = path.join(process.cwd(), "dist", "lavalink-events");
         const eventFiles = fs.readdirSync(eventsPath).filter((f: string) => f.endsWith(".js"));
 
         for (const file of eventFiles) {
