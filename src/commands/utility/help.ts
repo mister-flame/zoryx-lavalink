@@ -20,9 +20,9 @@ module.exports = {
         await interaction.deferReply();
 
         const commandsPath = path.join(__dirname, '..');
-        const musicCommands = fs.readdirSync(path.join(commandsPath, 'music')).filter((file: string) => file.endsWith('.ts')).join(', ').replace(/\.ts/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
-        const utilityCommands = fs.readdirSync(path.join(commandsPath, 'utility')).filter((file: string) => file.endsWith('.ts')).join(', ').replace(/\.ts/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
-        const funCommands = fs.readdirSync(path.join(commandsPath, 'fun')).filter((file: string) => file.endsWith('.ts')).join(', ').replace(/\.ts/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
+        const musicCommands = fs.readdirSync(path.join(commandsPath, 'music')).filter((file: string) => file.endsWith('.js')).join(', ').replace(/\.js/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
+        const utilityCommands = fs.readdirSync(path.join(commandsPath, 'utility')).filter((file: string) => file.endsWith('.js')).join(', ').replace(/\.js/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
+        const funCommands = fs.readdirSync(path.join(commandsPath, 'fun')).filter((file: string) => file.endsWith('.js')).join(', ').replace(/\.js/g, '').split(', ').map(cmd => `\/${cmd}`).join(', ');
 
         const helpEmbed = new EmbedBuilder()
             .setColor(COLOR_EMBED)
