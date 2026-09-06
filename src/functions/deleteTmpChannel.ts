@@ -1,14 +1,12 @@
-// Dependency imports
-
-import { TextChannel, VoiceChannel } from "discord.js";
+import { VoiceChannel } from "discord.js";
+import { connectDB } from "./connectDatabase";
 
 const sqlite3 = require("sqlite3").verbose();
-const { connectDB } = require("./connectDatabase");
 
 /**
  * Delete a specific channel on discord and in the database of the bot
  * @param {string} channelId - The id of the channel to delete
- * @param {TextChannel} channel - The channel to delete in discord
+ * @param {VoiceChannel} channel - The channel to delete in discord
  */
 
 export async function deleteTmpChannel(channelId: string, channel?: VoiceChannel | null) {

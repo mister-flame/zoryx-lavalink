@@ -2,7 +2,7 @@
 
 import p from "phin";
 
-/*
+/**
     Function to get the best available thumbnail for a YouTube video. It checks for different quality levels and returns the URL of the best one found.
     @param {string} videoId - The ID of the YouTube video to get the thumbnail for
     @returns {string|null} - The URL of the best available thumbnail, or null if none are found

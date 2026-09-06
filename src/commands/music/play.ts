@@ -147,7 +147,7 @@ module.exports = {
         await interaction.deferReply();
 
         track.info.requester = interaction.user;
-        track.info.requestDate = new Date();
+        track.info.requestTimestamp = Date.now();
 
         if (track.sourceName === "youtube") {
             const newArtworkUrl = await getBestThumbnail(track.info.identifier);
@@ -162,7 +162,7 @@ module.exports = {
             .setDescription(`**[${track.info.title}](${track.info.uri})** | Durée : \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``)
             .setThumbnail(track.info.artworkUrl)
             .setFooter({ text: `Demandé par ${track.info.requester.username} | Position n°${player.queue.current ? player.queue.tracks.length + 1 : 1}`, iconURL: track.info.requester.displayAvatarURL() })
-            .setTimestamp(track.info.requestDate);
+            .setTimestamp(track.info.requestTimestamp);
 
         await interaction.editReply({ embeds: [addSong] }).then(() => {
             setTimeout(() => interaction.deleteReply().catch(() => { }), 15000);

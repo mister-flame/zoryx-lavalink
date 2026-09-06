@@ -1,4 +1,4 @@
-import { Embed, EmbedBuilder, Interaction, Message } from "discord.js";
+import { EmbedBuilder, Interaction } from "discord.js";
 
 function getUserFooter(interaction: Interaction) {
     return {

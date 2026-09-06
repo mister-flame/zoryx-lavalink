@@ -59,7 +59,7 @@ module.exports = {
             .setDescription(`**[${track.info.title}](${track.info.uri})**\n${progressBar}\n\`${(await formatDuration(currentTime)).join(":")} / ${track.info.isStream == false ? (await formatDuration(totalTime)).join(":") : "Stream 🔴"}\``)
             .setThumbnail(track.info.artworkUrl)
             .setFooter({ text: `Demandé par ${interaction.user.username}`, iconURL: interaction.user.displayAvatarURL() })
-            .setTimestamp(track.info.requestDate);
+            .setTimestamp(track.info.requestTimestamp);
         interaction.editReply({ embeds: [nowPlayingEmbed] }).then(msg => {
             setTimeout(() => msg.delete().catch(() => { }), 15000);
         }).catch(() => { });

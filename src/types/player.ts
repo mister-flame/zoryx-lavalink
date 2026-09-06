@@ -12,10 +12,9 @@ export type PlayerType = Player & {
         tracks: TrackType[];
     }
     position: number;
-    createdTimeStamp: Date;
+    createdTimeStamp: number;
     playing: boolean;
     volume: number;
     guildId: string;
-    destroy: () => void;
     state: string;
 };

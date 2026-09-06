@@ -81,7 +81,7 @@ module.exports = {
             embed.setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``);
             embed.setFooter({ text: `Demandé par ${requesterName} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: requesterAvatar });
             embed.setImage(track.info.artworkUrl);
-            embed.setTimestamp(track.info.requestDate);
+            embed.setTimestamp(track.info.requestTimestamp);
 
             player.mainMessage.edit({ embeds: [embed] });
         } else if (!player.mainMessage && channel && channel instanceof TextChannel) {
@@ -121,7 +121,7 @@ module.exports = {
                 .setDescription(`**[${track.info.title}](${track.info.uri})** | \`${track.info.isStream == false ? (await formatDuration(track.info.duration)).join(":") : "Stream 🔴"}\``)
                 .setImage(track.info.artworkUrl)
                 .setFooter({ text: `Demandé par ${requesterName} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: requesterAvatar })
-                .setTimestamp(track.info.requestDate);
+                .setTimestamp(track.info.requestTimestamp);
 
             player.mainMessage = await channel.send({ embeds: [playingEmbed], components: [playerButtons] }).catch((err) => { console.error("Impossible d'envoyer le message de lecture en cours :", err); }) as Message;
         }
