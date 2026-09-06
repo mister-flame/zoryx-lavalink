@@ -58,22 +58,18 @@ module.exports = {
 
         // Set up event listeners for Lavalink events to log node connections, errors, and statistics
 
-        client.lavalink.on("nodeConnect" as any, (node: LavalinkNode) => {
+        client.lavalink.nodeManager.on("connect", (node: LavalinkNode) => {
             if (node) {
                 console.log(`✅ Lavalink Node connecté : ${node.options.id}`);
             }
         });
 
-        client.lavalink.on("nodeError" as any, (node: LavalinkNode, error: Error) => {
+        client.lavalink.nodeManager.on("error", (node: LavalinkNode, error: Error) => {
             console.error(`❌ Erreur sur node ${node.options.id} :`, error);
         });
 
-        client.lavalink.on('nodeError' as any, (node: LavalinkNode, error: Error) => {
-            console.error(`❌ Node ${node.options.id} encountered an error:`, error);
-        });
-
-        client.lavalink.on('nodeDisconnect' as any, (node: LavalinkNode, reason: string) => {
-            console.warn(`❌ Node ${node.options.id} disconnected:`, reason);
+        client.lavalink.nodeManager.on("disconnect", (node: LavalinkNode, reason: { code?: number; reason?: string }) => {
+            console.warn(`❌ Node ${node.options.id} disconnected:`, reason.reason ?? reason.code ?? "unknown reason");
             setTimeout(() => {
                 if (!node.isAlive) {
                     node.connect();
@@ -81,8 +77,8 @@ module.exports = {
             }, 5000);
         });
 
-        client.lavalink.on('nodeReconnect' as any, (node: LavalinkNode) => {
-            console.log(`Node ${node.options.id} reconnecté !`);
+        client.lavalink.nodeManager.on("reconnecting", (node: LavalinkNode) => {
+            console.log(`Node ${node.options.id} se reconnecte !`);
 
             // Reconnect all players that were previously playing before the node disconnected
             for (const [_, player] of client.lavalink.players) {
@@ -90,10 +86,6 @@ module.exports = {
                     player.connect?.();
                 }
             }
-        });
-
-        client.lavalink.on("nodeStats" as any, (node: LavalinkNode, stats: string) => {
-            console.log(`📊 Stats de ${node.options.id} :`, stats);
         });
 
         // Attempt to initialize the LavalinkManager and catch any errors that occur during initialization
