@@ -138,13 +138,17 @@ module.exports = {
             await node.connect();
         }
 
-        if (!player.connected) await player.connect();
-
         if (!track) {
             return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")], flags: MessageFlags.Ephemeral });
         }
 
+        await player.queue.add(track);
+
         await interaction.deferReply();
+
+        if (!player.connected) player.connect();
+
+        if (!player.playing) player.play();
 
         track.info.requester = interaction.user;
         track.info.requestTimestamp = Date.now();
@@ -153,8 +157,6 @@ module.exports = {
             const newArtworkUrl = await getBestThumbnail(track.info.identifier);
             track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
         }
-
-        await player.queue.add(track);
 
         const addSong = new EmbedBuilder()
             .setColor(COLOR_EMBED)
@@ -167,11 +169,6 @@ module.exports = {
         await interaction.editReply({ embeds: [addSong] }).then(() => {
             setTimeout(() => interaction.deleteReply().catch(() => { }), 15000);
         }).catch(() => { });
-
-        if (!player.playing) {
-            await player.play();
-            return;
-        }
 
         if ((player.mainMessage && player.mainMessage.embeds.length > 0) && interaction.channel && interaction.channel instanceof TextChannel && player.mainMessage.editable) {
 
