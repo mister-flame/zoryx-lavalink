@@ -37,7 +37,10 @@ module.exports = {
             }).catch(() => { });
             return player.play({ track: player.queue.current as TrackType });
         } else if ((player.repeatMode === "off") && player.queue.tracks.length === 0) {
-            return player.stopPlaying();
+            player.stopPlaying();
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Aucun morceau restant, fin de la file d\'attente...')] }).then(() => {
+                setTimeout(() => interaction.deleteReply().catch(() => { }), 15000);
+            }).catch(() => { });
         }
 
         let value;
