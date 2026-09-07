@@ -17,11 +17,40 @@ if (!config.token || !config.clientId) {
 
 const { COLOR_EMBED } = config;
 
-/*
+const playerButtons = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+        new ButtonBuilder()
+            .setCustomId("loopTrack")
+            .setEmoji("🔂")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(false),
+        new ButtonBuilder()
+            .setCustomId("loopQueue")
+            .setEmoji("🔁")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(false),
+        new ButtonBuilder()
+            .setCustomId("shuffle")
+            .setEmoji("🔀")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(false),
+        new ButtonBuilder()
+            .setCustomId("skip")
+            .setEmoji("⏭️")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(false),
+        new ButtonBuilder()
+            .setCustomId("leave")
+            .setEmoji("🔌")
+            .setStyle(ButtonStyle.Danger)
+            .setDisabled(false),
+    );
+
+/**
     * Lavalink "trackStart" event handler
-    * @param {Client} client - The Discord client instance
-    * @param {Player} player - The Lavalink player instance
-    * @param {Object} track - The track that started playing
+    * @param {BotClient} client - The Discord client instance
+    * @param {PlayerType} player - The Lavalink player instance
+    * @param {TrackType} track - The track that started playing
 */
 
 module.exports = {
@@ -83,37 +112,8 @@ module.exports = {
             embed.setImage(track.info.artworkUrl);
             embed.setTimestamp(track.info.requestDate);
 
-            player.mainMessage.edit({ embeds: [embed] });
+            player.mainMessage.edit({ embeds: [embed], components: [playerButtons] });
         } else if (!player.mainMessage && channel && channel instanceof TextChannel) {
-
-            const playerButtons = new ActionRowBuilder<ButtonBuilder>()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId("loopTrack")
-                        .setEmoji("🔂")
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(false),
-                    new ButtonBuilder()
-                        .setCustomId("loopQueue")
-                        .setEmoji("🔁")
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(false),
-                    new ButtonBuilder()
-                        .setCustomId("shuffle")
-                        .setEmoji("🔀")
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(false),
-                    new ButtonBuilder()
-                        .setCustomId("skip")
-                        .setEmoji("⏭️")
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(false),
-                    new ButtonBuilder()
-                        .setCustomId("leave")
-                        .setEmoji("🔌")
-                        .setStyle(ButtonStyle.Danger)
-                        .setDisabled(false),
-                );
 
             const playingEmbed = new EmbedBuilder()
                 .setColor(COLOR_EMBED)
