@@ -135,7 +135,7 @@ module.exports = {
 
         const node = player.node;
         if (!node || !node.connected) {
-            await node.connect();
+            node.connect();
         }
 
         if (!track) {
@@ -144,9 +144,9 @@ module.exports = {
 
         await player.queue.add(track);
 
-        await interaction.deferReply();
-
         if (!player.connected) player.connect();
+
+        await interaction.deferReply();
 
         if (!player.playing) player.play();
 
