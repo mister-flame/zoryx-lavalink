@@ -117,11 +117,6 @@ module.exports = {
             return;
         }
 
-        const node = player.node;
-        if (!node || !node.connected) {
-            node.connect();
-        }
-
         if (!player) {
             player = await client.lavalink.createPlayer({
                 guildId: interaction.guild.id,
@@ -132,6 +127,11 @@ module.exports = {
                 selfMute: false,
                 volume: 100
             }) as PlayerType;
+        }
+
+        const node = player.node;
+        if (!node || !node.connected) {
+            node.connect();
         }
 
         if (!player.connected) player.connect();
