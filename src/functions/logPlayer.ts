@@ -1,13 +1,13 @@
-/*
-    * Function to log detailed information about a Lavalink player instance, including its state and relevant messages
-    * @param {Client} client - The Discord client instance
-    * @param {Player} player - The Lavalink player instance to log information about
-    * @param {string} messages - Additional messages to log alongside the player information
-*/
-
 import { TextChannel } from "discord.js";
 import { BotClient } from "../types";
 import { PlayerType } from "../types/player";
+
+/**
+    * Function to log detailed information about a Lavalink player instance, including its state and relevant messages
+    * @param {BotClient} client - The Discord client instance
+    * @param {PlayerType} player - The Lavalink player instance to log information about
+    * @param {string} messages - Additional messages to log alongside the player information
+*/
 
 export async function logPlayer(client: BotClient, player: PlayerType, message = "") {
 

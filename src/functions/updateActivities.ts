@@ -5,13 +5,13 @@ import { BotClient } from "../types";
 import { ActivityOptions, ActivityType, PresenceStatusData } from "discord.js";
 import { getChannelsCount } from "./getChannelsCount";
 
-/*
+/**
     * Function to generate a random activity status for the bot that includes information about the number of servers, users, and tracks being played
-    * @param {Client} client - The Discord client instance
+    * @param {BotClient} client - The Discord client instance
     * @returns {string} - A randomly generated activity status string
 */
 
-module.exports.updateActivities = async function updateActivities(client: BotClient) {
+export async function updateActivities(client: BotClient) {
 
     // Define an array of possible activity status messages that include dynamic information about the bot's usage and presence on Discord
 

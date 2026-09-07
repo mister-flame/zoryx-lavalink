@@ -11,7 +11,7 @@ export type TrackType = Track & {
         artworkUrl: string;
         title: string;
         uri: string;
-        requestDate: Date;
+        requestTimestamp: number;
         isStream: boolean;
         duration: number;
     };

@@ -1,17 +1,16 @@
-// Dependency imports
-
 import { Client, VoiceChannel } from "discord.js";
 import { connectDB } from "./connectDatabase";
 import { deleteTmpChannel } from "./deleteTmpChannel";
 import { Row } from "../types/row";
+import { BotClient } from "../types";
 
 
 /**
  * Delete all the temp channels which are supposed to be deleted (at the start of the bot)
- * @param {client} client - The client which will delete the channels
+ * @param {BotClient} client - The client which will delete the channels
  */
 
-export async function deleteTmpChannels(client: Client) {
+export async function deleteTmpChannels(client: BotClient) {
 
     // Connect to the database and store the connection in a variable
 

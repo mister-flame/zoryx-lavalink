@@ -1,8 +1,4 @@
-// Dependency for making HTTP requests
-
-import p from "phin";
-
-/*
+/**
     Function to get the best available thumbnail for a YouTube video. It checks for different quality levels and returns the URL of the best one found.
     @param {string} videoId - The ID of the YouTube video to get the thumbnail for
     @returns {string|null} - The URL of the best available thumbnail, or null if none are found
@@ -28,8 +24,7 @@ export async function getBestThumbnail(videoId: string) {
         for (const q of qualities) {
             const url = `https://img.youtube.com/vi/${videoId}/${q}.jpg`;
 
-            const res = await p({
-                url,
+            const res = await fetch(url, {
                 method: "GET",
                 headers: {
                     "User-Agent":
@@ -47,7 +42,7 @@ export async function getBestThumbnail(videoId: string) {
 
             // Return the URL of the thumbnail if the response status code is 200 (OK), indicating that the thumbnail exists
 
-            if (res && res.statusCode === 200) {
+            if (res && res.status === 200) {
                 return url;
             }
         }

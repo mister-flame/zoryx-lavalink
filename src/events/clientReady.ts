@@ -1,16 +1,20 @@
 // Dependency imports
 
-import { Payload } from "erela.js";
-import { NodeType } from "../types/node"
-import { BotClient } from "../types";
+import { GuildShardPayload, LavalinkNode, LavalinkManager } from "lavalink-client";
+import { BotClient, BotConfig } from "../types";
+import { EmbedBuilder, WebhookClient } from "discord.js";
+import fs from "fs";
+import path from "path";
+import { deleteTmpChannels } from "../functions/checkTempChannels";
+import { updateActivities } from "../functions/updateActivities";
 
-const { LavalinkManager } = require("lavalink-client");
-const { EmbedBuilder, WebhookClient } = require("discord.js");
-const { node, START_WEBHOOK, COLOR_EMBED } = require("../util/config");
-const fs = require("fs");
-const path = require("path");
-const { deleteTmpChannels } = require("../functions/checkTempChannels");
-const { updateActivities } = require("../functions/updateActivities");
+const config = require("../util/config") as BotConfig;
+
+if (!config.token || !config.clientId) {
+    throw new Error("Missing token or clientId in src/config.json or environment variables.");
+}
+
+const { COLOR_EMBED, START_WEBHOOK, node } = config;
 
 // Create a WebhookClient instance to send messages to the specified webhook URL for logging bot startup events
 
@@ -32,7 +36,7 @@ module.exports = {
 
         client.lavalink = new LavalinkManager({
             nodes: [node],
-            sendToShard: (guildId: string, payload: Payload) => {
+            sendToShard: (guildId: string, payload: GuildShardPayload) => {
                 const guild = client.guilds.cache.get(guildId);
                 if (guild) guild.shard.send(payload);
             },
@@ -48,35 +52,24 @@ module.exports = {
                     destroyAfterMs: 300_000
                 },
             },
-            // Lavalink client options to configure behavior such as auto-reconnection and queue management
-            clientOptions: {
-                clientBasedPositionUpdateInterval: 60,
-                defaultSearchPlatform: "youtube",
-                onDisconnect: { autoReconnect: false, destroyPlayer: true },
-                onEmptyQueue: { destroyAfterMs: 300_000 },
-            },
             queueOptions: { maxPreviousTracks: 0 },
             autoSkipOnResolveError: true
         });
 
         // Set up event listeners for Lavalink events to log node connections, errors, and statistics
 
-        client.lavalink.on("nodeConnect" as any, (node: NodeType) => {
+        client.lavalink.nodeManager.on("connect", (node: LavalinkNode) => {
             if (node) {
-                console.log(`✅ Lavalink Node connecté : ${node.options.identifier}`);
+                console.log(`✅ Lavalink Node connecté : ${node.options.id}`);
             }
         });
 
-        client.lavalink.on("nodeError" as any, (node: NodeType, error: Error) => {
-            console.error(`❌ Erreur sur node ${node.options.identifier} :`, error);
+        client.lavalink.nodeManager.on("error", (node: LavalinkNode, error: Error) => {
+            console.error(`❌ Erreur sur node ${node.options.id} :`, error);
         });
 
-        client.lavalink.on('nodeError' as any, (node: NodeType, error: Error) => {
-            console.error(`❌ Node ${node.options.identifier} encountered an error:`, error);
-        });
-
-        client.lavalink.on('nodeDisconnect' as any, (node: NodeType, reason: string) => {
-            console.warn(`❌ Node ${node.options.identifier} disconnected:`, reason);
+        client.lavalink.nodeManager.on("disconnect", (node: LavalinkNode, reason: { code?: number; reason?: string }) => {
+            console.warn(`❌ Node ${node.options.id} disconnected:`, reason.reason ?? reason.code ?? "unknown reason");
             setTimeout(() => {
                 if (!node.isAlive) {
                     node.connect();
@@ -84,8 +77,8 @@ module.exports = {
             }, 5000);
         });
 
-        client.lavalink.on('nodeReconnect' as any, (node: NodeType) => {
-            console.log(`Node ${node.options.identifier} reconnecté !`);
+        client.lavalink.nodeManager.on("reconnecting", (node: LavalinkNode) => {
+            console.log(`Node ${node.options.id} reconnexion en cours...`);
 
             // Reconnect all players that were previously playing before the node disconnected
             for (const [_, player] of client.lavalink.players) {
@@ -93,10 +86,6 @@ module.exports = {
                     player.connect?.();
                 }
             }
-        });
-
-        client.lavalink.on("nodeStats" as any, (node: NodeType, stats: string) => {
-            console.log(`📊 Stats de ${node.options.identifier} :`, stats);
         });
 
         // Attempt to initialize the LavalinkManager and catch any errors that occur during initialization

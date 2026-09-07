@@ -1,4 +1,4 @@
-/*
+/**
     * Function to format a duration in milliseconds into a more human-readable format (HH:MM:SS or MM:SS)
     * @param {number} ms - The duration in milliseconds to format
     * @returns {number[]} - An array containing the formatted duration as strings (e.g., ["01", "30"] for 1 minute and 30 seconds)

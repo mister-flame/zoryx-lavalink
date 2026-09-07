@@ -1,5 +1,5 @@
 import type { Client, Collection, ColorResolvable } from "discord.js";
-import { LavalinkManager } from "lavalink-client";
+import { LavalinkManager, LavalinkNodeOptions } from "lavalink-client";
 
 export type BotConfig = {
   token: string;
@@ -8,6 +8,8 @@ export type BotConfig = {
   dbPath: string;
   API_KEY: string;
   LOGS_WEBHOOK: string;
+  START_WEBHOOK: string;
+  node: LavalinkNodeOptions;
 };
 
 export type BotCommand = {

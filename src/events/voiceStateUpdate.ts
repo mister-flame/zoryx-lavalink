@@ -1,16 +1,11 @@
-import { VoiceState } from "discord.js";
+import { VoiceState,  ChannelType, PermissionsBitField, VoiceChannel } from "discord.js";
 import { BotClient } from "../types";
 import { Row } from "../types/row";
-
-const {
-  ChannelType,
-  PermissionsBitField,
-} = require("discord.js");
-
-const { connectDB } = require("../functions/connectDatabase");
-const { deleteTmpChannel } = require("../functions/deleteTmpChannel");
-const { getPlayer } = require("../functions/getPlayer");
-const { updateVoiceStatus } = require("../functions/updateVoiceStatus");
+import { PlayerType } from "../types/player";
+import { connectDB } from "../functions/connectDatabase";
+import { deleteTmpChannel } from "../functions/deleteTmpChannel";
+import { getPlayer } from "../functions/getPlayer";
+import { updateVoiceStatus } from "../functions/updateVoiceStatus";
 
 let query = null;
 
@@ -25,7 +20,7 @@ module.exports = {
     if (!client.user) return;
 
     if (oldstate.channelId != null && newstate.channelId === null && oldstate.member.user.id === client.user.id) {
-      const player = await getPlayer(client, oldstate.guild.id);
+      const player = await getPlayer(client, oldstate.guild.id) as PlayerType;
 
       if (player) {
         if (player.mainMessage && player.mainMessage.deletable) {
@@ -85,7 +80,7 @@ module.exports = {
               })
               .catch((error) => {
                 console.error(error);
-              });
+              }) as VoiceChannel;
             query = `INSERT INTO tempChannel (channelId, mainChannel) VALUES (${newChannel.id}, ${row.id});`;
 
             dbTempChannels.run(query);
@@ -133,7 +128,7 @@ module.exports = {
 
           if (oldstate.channel.id === row.channelId) {
             if (oldstate.channel.members.size === 0) {
-              deleteTmpChannel(row.channelId, oldstate.channel);
+              deleteTmpChannel(row.channelId, oldstate.channel as VoiceChannel);
             }
           }
         }

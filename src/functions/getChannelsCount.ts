@@ -1,7 +1,7 @@
 // Dependency imports
 
+import { connectDB } from "./connectDatabase";
 const sqlite3 = require("sqlite3").verbose();
-const { connectDB } = require("./connectDatabase");
 
 /**
  * Gets the number of channels in the database
