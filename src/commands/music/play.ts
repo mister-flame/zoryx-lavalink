@@ -117,6 +117,11 @@ module.exports = {
             return;
         }
 
+        const node = player.node;
+        if (!node || !node.connected) {
+            node.connect();
+        }
+
         if (!player) {
             player = await client.lavalink.createPlayer({
                 guildId: interaction.guild.id,
@@ -129,14 +134,11 @@ module.exports = {
             }) as PlayerType;
         }
 
+        if (!player.connected) player.connect();
+
         let track = (await player.search(query, {
             source: "youtube",
         })).tracks[0] as TrackType;
-
-        const node = player.node;
-        if (!node || !node.connected) {
-            node.connect();
-        }
 
         if (!track) {
             return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")], flags: MessageFlags.Ephemeral });
@@ -144,11 +146,9 @@ module.exports = {
 
         await player.queue.add(track);
 
-        if (!player.connected) player.connect();
+        if (!player.playing) player.play();
 
         await interaction.deferReply();
-
-        if (!player.playing) player.play();
 
         track.info.requester = interaction.user;
         track.info.requestTimestamp = Date.now();
