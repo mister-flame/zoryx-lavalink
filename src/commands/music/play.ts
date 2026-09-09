@@ -17,7 +17,7 @@ const { COLOR_EMBED } = config;
 
 module.exports = {
     name: 'play',
-    cooldown: 5,
+    cooldown: 10,
     data: new SlashCommandBuilder().setName('play').setDescription('Jouer une vidéo depuis YouTube ou d\'autres plateformes supportées!')
         .addStringOption((option) => option.setName('query').setDescription('La vidéo à jouer').setAutocomplete(true).setRequired(true)),
     async autocomplete(interaction: AutocompleteInteraction) {
@@ -56,8 +56,7 @@ module.exports = {
             }
 
             const choices = await player.search(focusedValue, {
-                source: "youtube",
-                limit: 5,
+                source: "youtube"
             });
 
             if (!choices || !choices.tracks || choices.tracks.length === 0) {
@@ -129,13 +128,6 @@ module.exports = {
             }) as PlayerType;
         }
 
-        const node = player.node;
-        if (!node || !node.connected) {
-            node.connect();
-        }
-
-        if (!player.connected) player.connect();
-
         let track = (await player.search(query, {
             source: "youtube",
         })).tracks[0] as TrackType;
@@ -148,7 +140,14 @@ module.exports = {
 
         if (!player.playing) player.play();
 
+        const node = player.node;
+        if (!node || !node.connected) {
+            node.connect();
+        }
+
         await interaction.deferReply();
+
+        if (!player.connected) player.connect();
 
         track.info.requester = interaction.user;
         track.info.requestTimestamp = Date.now();
