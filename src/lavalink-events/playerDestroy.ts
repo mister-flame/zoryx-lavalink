@@ -22,8 +22,6 @@ module.exports = {
 
         logPlayer(client, player, `Le player a été détruit !`);
 
-        updateVoiceStatus(player.voiceChannelId);
-
         if (player.mainMessage && player.mainMessage.deletable) player.mainMessage.delete().catch(() => { });
 
         return;
