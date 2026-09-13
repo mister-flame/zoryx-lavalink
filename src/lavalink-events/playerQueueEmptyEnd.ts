@@ -41,6 +41,7 @@ module.exports = {
             }, 30 * 1000)
         })
 
+        updateVoiceStatus(player.voiceChannelId);
         player.destroy();
         return;
     }
