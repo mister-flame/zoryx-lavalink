@@ -41,10 +41,7 @@ module.exports = {
             }, 30 * 1000)
         })
 
-        if (player.mainMessage && player.mainMessage.deletable) player.mainMessage.delete().catch(() => { });
-
         player.destroy();
-        updateVoiceStatus(player.voiceChannelId);
         return;
     }
 }
