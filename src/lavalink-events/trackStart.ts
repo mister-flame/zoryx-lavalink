@@ -124,6 +124,10 @@ module.exports = {
                 .setTimestamp(track.info.requestTimestamp);
 
             player.mainMessage = await channel.send({ embeds: [playingEmbed], components: [playerButtons] }).catch((err) => { console.error("Impossible d'envoyer le message de lecture en cours :", err); }) as Message;
+
+            if (player.mainMessage.pinnable && !player.mainMessage.pinned) {
+                player.mainMessage.pin().catch((err) => { console.error("Impossible d'épingler le message de lecture en cours :", err); });
+            }
         }
 
         if (channel && channel instanceof TextChannel && player.repeatMode != "track") {
