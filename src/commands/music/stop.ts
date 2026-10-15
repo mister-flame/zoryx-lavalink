@@ -18,16 +18,14 @@ module.exports = {
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         if (!member.voice.channel) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")] });
         }
 
         const player = await getPlayer(interaction.client as BotClient, interaction.guild.id) as PlayerType;
 
         if (!player) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun player/morceau pour ce serveur.')], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Aucun player/morceau pour ce serveur.')] });
         }
-
-        await interaction.deferReply();
 
         player.stopPlaying();
         updateVoiceStatus(player.voice.channelId as string);

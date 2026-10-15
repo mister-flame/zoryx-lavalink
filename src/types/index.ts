@@ -9,6 +9,7 @@ export type BotConfig = {
   API_KEY: string;
   LOGS_WEBHOOK: string;
   START_WEBHOOK: string;
+  ERROR_WEBHOOK: string;
   node: LavalinkNodeOptions;
 };
 

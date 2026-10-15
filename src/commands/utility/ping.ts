@@ -42,10 +42,8 @@ module.exports = {
             .setTimestamp();
 
         if (!interaction.guild) {
-            return interaction.reply({ content: "La commande n'a pas été lancé d'un serveur !", flags: MessageFlags.Ephemeral })
+            return interaction.editReply({ content: "La commande n'a pas été lancé d'un serveur !" })
         }
-
-        await interaction.deferReply();
 
         const player = await getPlayer(client, interaction.guild.id);
 

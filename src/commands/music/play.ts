@@ -89,23 +89,23 @@ module.exports = {
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         if (!member.voice.channel) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")] });
         }
 
         if (!query) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois fournir une vidéo à jouer")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois fournir une vidéo à jouer")] });
         }
 
         if (query === "invalid_voice_channel_-1") {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")] });
         }
 
         if (query === "no_results_found_-1") {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")] });
         }
 
         if (query === "error_occurred_-1") {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Une erreur est survenue lors de la recherche de la vidéo")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Une erreur est survenue lors de la recherche de la vidéo")] });
         }
 
         const client = interaction.client as BotClient;
@@ -113,7 +113,7 @@ module.exports = {
         let player = await getPlayer(client, interaction.guild.id) as PlayerType;
 
         if (!interaction.channel?.id) {
-            return;
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "❌ Pas de channel valide")] });
         }
 
         if (!player) {
@@ -133,7 +133,7 @@ module.exports = {
         })).tracks[0] as TrackType;
 
         if (!track) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")] });
         }
 
         await player.queue.add(track);
@@ -144,8 +144,6 @@ module.exports = {
         if (!node || !node.connected) {
             node.connect();
         }
-
-        await interaction.deferReply();
 
         if (!player.connected) player.connect();
 

@@ -27,10 +27,8 @@ module.exports = {
             answer = await askMistral(question, behaviour);
         } catch (error) {
             console.error('Error occurred while asking Mistral:', error);
-            return interaction.reply({ content: 'Une erreur est survenue lors de la réponse du bot.', flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ content: 'Une erreur est survenue lors de la réponse du bot.' });
         }
-
-        await interaction.deferReply();
 
         const askEmbed = new EmbedBuilder()
             .setTitle("❓ " + question)

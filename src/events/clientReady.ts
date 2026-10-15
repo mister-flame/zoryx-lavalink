@@ -173,5 +173,10 @@ module.exports = {
         } catch (error) {
             console.error(error);
         }
+
+        // Set up global error handling for unhandled promise rejections and uncaught exceptions to log any unexpected errors that occur during the bot's operation
+
+        process.on('unhandledRejection', (err) => console.error('Unhandled rejection:', err));
+        process.on('uncaughtException', (err) => console.error('Uncaught exception:', err));
     },
 };

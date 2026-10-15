@@ -32,27 +32,27 @@ module.exports = {
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         if (!member.voice.channel) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")] });
         }
 
         const player = await getPlayer(interaction.client as BotClient, interaction.guild.id);
 
         if (!player) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun player pour ce serveur.')], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Aucun player pour ce serveur.')] });
         }
 
         let track = player.queue.current as TrackType;
 
         if (!track) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Pas de musique en cours.')], flags: MessageFlags.Ephemeral }).catch(() => { });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Pas de musique en cours.')] });
         }
 
         if (track.info.isStream == true) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Impossible de seek une musique en stream.')], flags: MessageFlags.Ephemeral }).catch(() => { });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Impossible de seek une musique en stream.')] });
         }
 
         if (!interaction.options.getString('time')) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Précise une durée à laquelle se déplacer. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')], flags: MessageFlags.Ephemeral }).catch(() => { });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Précise une durée à laquelle se déplacer. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')] });
         }
 
         let arg = interaction.options.getString('time') as string;
@@ -62,29 +62,27 @@ module.exports = {
             if (arg.includes(":")) {
                 const timeParts = arg.split(":").map(part => parseInt(part));
                 if (timeParts.some(isNaN)) {
-                    return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')], flags: MessageFlags.Ephemeral }).catch(() => { });
+                    return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')] }).catch(() => { });
                 }
                 if (timeParts.length > 3) {
-                    return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')], flags: MessageFlags.Ephemeral }).catch(() => { });
+                    return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')] }).catch(() => { });
                 }
                 time = 0;
                 for (let i = timeParts.length - 1; i >= 0; i--) {
                     time += timeParts[i] * Math.pow(60, timeParts.length - 1 - i) * 1000;
                 }
             } else {
-                return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Précise une durée valide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')], flags: MessageFlags.Ephemeral }).catch(() => { });
+                return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Précise une durée valide. Utilise le format `1s`, `1m`, `1h`, etc. ou `1:00`, `1:00:00`, etc.')] }).catch(() => { });
             }
         }
 
         if (isNaN(time)) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc.')], flags: MessageFlags.Ephemeral }).catch(() => { });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Durée invalide. Utilise le format `1s`, `1m`, `1h`, etc.')] }).catch(() => { });
         }
 
         if (time < 0 || time > track.info.duration) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, `❌ La durée doit être comprise entre \`0\` et \`${(await formatDuration(track.info.duration)).join(":")}\`.`)], flags: MessageFlags.Ephemeral }).catch(() => { });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, `❌ La durée doit être comprise entre \`0\` et \`${(await formatDuration(track.info.duration)).join(":")}\`.`)] }).catch(() => { });
         }
-
-        await interaction.deferReply();
 
         track.info.startedPlaying = Date.now() - time;
         await player.seek(time);

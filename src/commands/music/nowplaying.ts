@@ -26,22 +26,20 @@ module.exports = {
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         if (!member.voice.channel) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")] });
         }
 
         const player = await getPlayer(interaction.client as BotClient, interaction.guild.id);
 
         if (!player) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun player/morceau pour ce serveur.')], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Aucun player/morceau pour ce serveur.')] });
         }
 
         let track = player.queue.current as TrackType;
 
         if (!track) {
-            return interaction.reply({ embeds: [createUserEmbed(interaction, '❌ Aucun morceau en cours.')], flags: MessageFlags.Ephemeral });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, '❌ Aucun morceau en cours.')] });
         }
-
-        await interaction.deferReply();
 
         const currentTime = Date.now() - track.info.startedPlaying;
         const totalTime = track.info.duration;
