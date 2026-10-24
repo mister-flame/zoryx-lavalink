@@ -12,7 +12,7 @@ module.exports = {
     name: 'delete_favorite',
     cooldown: 10,
     data: new SlashCommandBuilder().setName('delete_favorite').setDescription('Supprimer une vidéo des favoris')
-        .addStringOption((option) => option.setName('query').setDescription('La vidéo à supprimer des favoris').setAutocomplete(true).setRequired(true)),
+        .addStringOption((option) => option.setName('query').setDescription('La vidéo à supprimer des favoris').setRequired(true)),
     async execute(interaction: ChatInputCommandInteraction) {
 
         let query;

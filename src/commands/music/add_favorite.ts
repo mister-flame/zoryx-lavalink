@@ -12,7 +12,7 @@ module.exports = {
     name: 'add_favorite',
     cooldown: 10,
     data: new SlashCommandBuilder().setName('add_favorite').setDescription('Ajouter une vidéo aux favoris')
-        .addStringOption((option) => option.setName('query').setDescription('La vidéo à ajouter aux favoris').setAutocomplete(true).setRequired(true)),
+        .addStringOption((option) => option.setName('query').setDescription('La vidéo à ajouter aux favoris').setRequired(true)),
     async execute(interaction: ChatInputCommandInteraction) {
 
         let query;
