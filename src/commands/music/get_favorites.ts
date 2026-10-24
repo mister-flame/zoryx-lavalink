@@ -2,7 +2,6 @@ import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction, ActionR
 import { createUserEmbed } from '../../functions/createUserEmbed';
 import { BotConfig } from '../../types';
 import DatabaseDAO from '../../classes/DatabaseDAO';
-import { getBestThumbnail } from '../../functions/getBestThumbnail';
 import Track from '../../classes/Track';
 
 const config = require("../../util/config") as BotConfig;

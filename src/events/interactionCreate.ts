@@ -1,5 +1,6 @@
 import { Interaction, Collection, MessageFlags, WebhookClient, EmbedBuilder, CommandInteraction, TextChannel, VoiceChannel, InteractionType } from "discord.js";
 import { BotClient, BotConfig } from "../types";
+import DatabaseDAO from "../classes/DatabaseDAO";
 
 const config = require("../util/config") as BotConfig;
 
@@ -108,6 +109,10 @@ module.exports = {
 
             if (interaction.customId === "loopTrack" || interaction.customId === "loopQueue") {
                 commandName = "loop";
+            }
+
+            if (interaction.customId === "add_favorite") {
+                commandName = "add_favorite";
             }
 
             const command = client.commands.get(commandName);

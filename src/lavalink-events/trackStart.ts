@@ -46,6 +46,16 @@ const playerButtons = new ActionRowBuilder<ButtonBuilder>()
             .setDisabled(false),
     );
 
+
+    const playerButtons2 = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+        new ButtonBuilder()
+            .setCustomId("add_favorite")
+            .setEmoji("❤️")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(false),
+    );
+
 /**
     * Lavalink "trackStart" event handler
     * @param {BotClient} client - The Discord client instance
@@ -112,7 +122,7 @@ module.exports = {
             embed.setImage(track.info.artworkUrl);
             embed.setTimestamp(track.info.requestTimestamp);
 
-            player.mainMessage.edit({ embeds: [embed], components: [playerButtons] });
+            player.mainMessage.edit({ embeds: [embed], components: [playerButtons, playerButtons2] });
         } else if (!player.mainMessage && channel && channel instanceof TextChannel) {
 
             const playingEmbed = new EmbedBuilder()
@@ -123,7 +133,7 @@ module.exports = {
                 .setFooter({ text: `Demandé par ${requesterName} • Loop : ${loopState} • ${player.queue.tracks.length + 1} morceaux`, iconURL: requesterAvatar })
                 .setTimestamp(track.info.requestTimestamp);
 
-            player.mainMessage = await channel.send({ embeds: [playingEmbed], components: [playerButtons] }).catch((err) => { console.error("Impossible d'envoyer le message de lecture en cours :", err); }) as Message;
+            player.mainMessage = await channel.send({ embeds: [playingEmbed], components: [playerButtons, playerButtons2] }).catch((err) => { console.error("Impossible d'envoyer le message de lecture en cours :", err); }) as Message;
 
             if (player.mainMessage.pinnable && !player.mainMessage.pinned) {
                 player.mainMessage.pin().catch((err) => { console.error("Impossible d'épingler le message de lecture en cours :", err); });

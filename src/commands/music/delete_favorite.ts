@@ -1,21 +1,11 @@
-import { SlashCommandBuilder, EmbedBuilder, MessageFlags, TextChannel, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
 import { getPlayer } from '../../functions/getPlayer';
-import { getBestThumbnail } from '../../functions/getBestThumbnail';
 import { createUserEmbed } from '../../functions/createUserEmbed';
 import { BotClient, BotConfig } from '../../types';
 import { PlayerType } from '../../types/player';
 import { TrackType } from '../../types/track';
 import DatabaseDAO from '../../classes/DatabaseDAO';
-import Track from '../../classes/Track';
 import { getVideoId } from '../../functions/getVideoId';
-
-const config = require("../../util/config") as BotConfig;
-
-if (!config.token || !config.clientId) {
-    throw new Error("Missing token or clientId in src/config.json or environment variables.");
-}
-
-const { COLOR_EMBED } = config;
 
 module.exports = {
     name: 'delete_favorite',

@@ -1,6 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder, MessageFlags, TextChannel, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
 import { getPlayer } from '../../functions/getPlayer';
-import { getBestThumbnail } from '../../functions/getBestThumbnail';
 import { createUserEmbed } from '../../functions/createUserEmbed';
 import { BotClient, BotConfig } from '../../types';
 import { PlayerType } from '../../types/player';
@@ -8,14 +7,6 @@ import { TrackType } from '../../types/track';
 import DatabaseDAO from '../../classes/DatabaseDAO';
 import Track from '../../classes/Track';
 import { getVideoId } from '../../functions/getVideoId';
-
-const config = require("../../util/config") as BotConfig;
-
-if (!config.token || !config.clientId) {
-    throw new Error("Missing token or clientId in src/config.json or environment variables.");
-}
-
-const { COLOR_EMBED } = config;
 
 module.exports = {
     name: 'add_favorite',
@@ -76,14 +67,29 @@ module.exports = {
     },
     async execute(interaction: ChatInputCommandInteraction) {
 
-        const query = interaction.options.getString('query');
+        let query;
+
+        if (interaction.options && interaction.options.getString('query')) {
+            query = interaction.options.getString('query');
+        }
 
         if (!interaction.guild) {
             return;
         }
 
+        const client = interaction.client as BotClient;
+
+        let player = await getPlayer(client, interaction.guild.id) as PlayerType;
+
         if (!query) {
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois fournir une vidéo à rajouter aux favoris")] });
+            if (player && player.queue && player.queue.current && player.queue.current.info && player.queue.current.info.uri) {
+                if (interaction.deferred || !interaction.replied) {
+                    await interaction.deferReply();
+                }
+                query = player.queue.current?.info.uri as string;
+            } else {
+                return;
+            }
         }
 
         if (query === "invalid_voice_channel_-1") {
@@ -97,10 +103,6 @@ module.exports = {
         if (query === "error_occurred_-1") {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Une erreur est survenue lors de la recherche de la vidéo")] });
         }
-
-        const client = interaction.client as BotClient;
-
-        let player = await getPlayer(client, interaction.guild.id) as PlayerType;
 
         if (!interaction.channel?.id) {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "❌ Pas de channel valide")] });
