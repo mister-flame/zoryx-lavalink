@@ -13,58 +13,6 @@ module.exports = {
     cooldown: 10,
     data: new SlashCommandBuilder().setName('add_favorite').setDescription('Ajouter une vidéo aux favoris')
         .addStringOption((option) => option.setName('query').setDescription('La vidéo à ajouter aux favoris').setAutocomplete(true).setRequired(true)),
-    async autocomplete(interaction: AutocompleteInteraction) {
-
-        if (!interaction.guild) {
-            return;
-        }
-
-        const focusedValue = interaction.options.getFocused();
-
-        if (!focusedValue) {
-            return interaction.respond([]);
-        }
-
-        try {
-
-            const client = interaction.client as BotClient;
-            let player = await getPlayer(client, interaction.guild.id) as PlayerType;
-
-            if (!player) {
-                player = await client.lavalink.createPlayer({
-                    guildId: interaction.guild.id,
-                    voiceChannelId: "",
-                    textChannelId: interaction.channel?.id,
-                    // optional configurations:
-                    selfDeaf: true,
-                    selfMute: false,
-                    volume: 100
-                }) as PlayerType;
-            }
-
-            const choices = await player.search(focusedValue, {
-                source: "youtube"
-            });
-
-            if (!choices || !choices.tracks || choices.tracks.length === 0) {
-                return interaction.respond([{ name: "⚠️ Aucune vidéo trouvée pour cette recherche", value: "no_results_found_-1" }]);
-            }
-
-            await interaction.respond(choices.tracks
-                .filter((choice) => choice.info.uri)
-                .slice(0, 5)
-                .map((choice) => ({ name: choice.info.title, value: choice.info.uri! })));
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error(`Error during autocomplete for /play command: ${errorMessage}`);
-            return interaction.respond([{ name: "⚠️ Une erreur est survenue lors de la recherche de la vidéo", value: "error_occurred_-1" }]);
-        } finally {
-            const player = await getPlayer(interaction.client as BotClient, interaction.guild.id) as PlayerType;
-            if (player && player.state === "CONNECTED") {
-                await player.destroy();
-            }
-        }
-    },
     async execute(interaction: ChatInputCommandInteraction) {
 
         let query;
@@ -108,7 +56,10 @@ module.exports = {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "❌ Pas de channel valide")] });
         }
 
+        let found = true;
+
         if (!player) {
+            found = false;
             player = await client.lavalink.createPlayer({
                 guildId: interaction.guild.id,
                 voiceChannelId: "",
@@ -124,7 +75,9 @@ module.exports = {
             source: "youtube",
         })).tracks[0] as TrackType;
 
-        player.destroy();
+        if (found == false) {
+            player.destroy()
+        }
 
         if (!track) {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")] });
