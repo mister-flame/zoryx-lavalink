@@ -124,6 +124,8 @@ module.exports = {
             source: "youtube",
         })).tracks[0] as TrackType;
 
+        player.destroy();
+
         if (!track) {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")] });
         }
