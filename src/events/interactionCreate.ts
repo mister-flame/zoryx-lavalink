@@ -132,6 +132,8 @@ module.exports = {
                 return;
             }
 
+            interaction.deferReply();
+
             const now = Date.now();
             const timestamps = cooldowns.get(command.data.name);
             const defaultCooldownDuration = 3;
