@@ -75,7 +75,7 @@ module.exports = {
             } catch (error: Error | any) {
                 console.error(error);
 
-                  // Ignore expired interactions, nothing can be sent for them
+                // Ignore expired interactions, nothing can be sent for them
                 if (error.code === 10062) return;
 
                 if (interaction.replied || interaction.deferred) {

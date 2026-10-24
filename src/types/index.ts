@@ -1,4 +1,5 @@
 import type { Client, Collection, ColorResolvable } from "discord.js";
+import type { PoolConfig } from "pg";
 import { LavalinkManager, LavalinkNodeOptions } from "lavalink-client";
 
 export type BotConfig = {
@@ -10,6 +11,7 @@ export type BotConfig = {
   LOGS_WEBHOOK: string;
   START_WEBHOOK: string;
   ERROR_WEBHOOK: string;
+  pool: PoolConfig;
   node: LavalinkNodeOptions;
 };
 

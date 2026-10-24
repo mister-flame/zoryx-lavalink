@@ -6,6 +6,9 @@ import { createUserEmbed } from '../../functions/createUserEmbed';
 import { BotClient, BotConfig } from '../../types';
 import { PlayerType } from '../../types/player';
 import { TrackType } from '../../types/track';
+import DatabaseDAO from '../../classes/DatabaseDAO';
+import Track from '../../classes/Track';
+import { getVideoId } from '../../functions/getVideoId';
 
 const config = require("../../util/config") as BotConfig;
 
@@ -19,7 +22,7 @@ module.exports = {
     name: 'play',
     cooldown: 10,
     data: new SlashCommandBuilder().setName('play').setDescription('Jouer une vidéo depuis YouTube ou d\'autres plateformes supportées!')
-        .addStringOption((option) => option.setName('query').setDescription('La vidéo à jouer').setAutocomplete(true).setRequired(true)),
+        .addStringOption((option) => option.setName('query').setDescription('La vidéo à jouer').setAutocomplete(true)),
     async autocomplete(interaction: AutocompleteInteraction) {
 
         if (!interaction.guild) {
@@ -92,10 +95,6 @@ module.exports = {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")] });
         }
 
-        if (!query) {
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois fournir une vidéo à jouer")] });
-        }
-
         if (query === "invalid_voice_channel_-1") {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois être en vocal pour utiliser cette commande")] });
         }
@@ -126,6 +125,67 @@ module.exports = {
                 selfMute: false,
                 volume: 100
             }) as PlayerType;
+        }
+
+        if (!query) {
+            const databaseDAO = new DatabaseDAO();
+            const tracks = await databaseDAO.getFavoriteTracks(interaction.user.id);
+
+            if (!tracks || tracks.length === 0) {
+                return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Vous n'avez pas encore de favoris. Utilisez la commande `/add_favorite` pour en ajouter.")] });
+            }
+
+            for (const tempTrack of tracks) {
+
+                let track = (await player.search(tempTrack.getUrl(), {
+                    source: tempTrack.getPlatform() as "youtube" | "spotify" | "soundcloud",
+                })).tracks[0] as TrackType;
+
+                track.info.requester = interaction.user;
+                track.info.requestTimestamp = Date.now();
+
+                if (track.sourceName === "youtube") {
+                    const newArtworkUrl = await getBestThumbnail(track.info.identifier);
+                    track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
+                }
+
+                await player.queue.add(track);
+            }
+            if (!player.playing) player.play();
+
+            const node = player.node;
+            if (!node || !node.connected) {
+                node.connect();
+            }
+
+            if (!player.connected) player.connect();
+
+                    if ((player.mainMessage && player.mainMessage.embeds.length > 0) && interaction.channel && interaction.channel instanceof TextChannel && player.mainMessage.editable) {
+
+            let emojiRepeat;
+
+            switch (player.repeatMode) {
+                case "track":
+                    emojiRepeat = "🔂";
+                    break;
+                case "queue":
+                    emojiRepeat = "🔁";
+                    break;
+                case "off":
+                    emojiRepeat = "❌";
+                    break;
+            }
+
+            const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
+
+            if (player.queue.current.info.requester) {
+                embed.setFooter({ text: `Demandé par ${player.queue.current.info.requester.username} • Loop : ${emojiRepeat} • ${player.queue.tracks.length + tracks.length} morceaux`, iconURL: player.queue.current.info.requester.displayAvatarURL() });
+            }
+
+            player.mainMessage.edit({ embeds: [embed] });
+        }
+
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ Toutes vos musiques favorites (${tracks.length}) ont été ajoutées à la file d'attente !`).setColor("Green")] });
         }
 
         let track = (await player.search(query, {
