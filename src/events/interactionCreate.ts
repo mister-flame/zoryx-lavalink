@@ -116,7 +116,7 @@ module.exports = {
             }
 
             if (interaction.customId === "delete_favorite") {
-                commandName = "add_favorite";
+                commandName = "delete_favorite";
             }
 
             const command = client.commands.get(commandName);
