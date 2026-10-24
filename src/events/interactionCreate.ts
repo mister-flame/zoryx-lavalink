@@ -132,8 +132,6 @@ module.exports = {
                 return;
             }
 
-            interaction.deferReply();
-
             const now = Date.now();
             const timestamps = cooldowns.get(command.data.name);
             const defaultCooldownDuration = 3;
@@ -170,6 +168,8 @@ module.exports = {
             webhookClientLogs.send({ embeds: [logsEmbed] }).catch((error) => {
                 console.error("Impossible d'envoyer le log de l'interaction :", error);
             });
+
+            await interaction.deferReply();
 
             try {
                 await command.execute(interaction, (interaction.customId === "loopTrack" ? "track" : "queue"));
