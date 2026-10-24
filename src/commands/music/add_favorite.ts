@@ -85,6 +85,10 @@ module.exports = {
 
         const databaseDAO = new DatabaseDAO();
 
+        if (!(await databaseDAO.getUser(interaction.user.id))) {
+            await databaseDAO.createUser(interaction.user.id);
+        }
+
         const videoId = await getVideoId(track.info.uri);
 
         if (!videoId) {
