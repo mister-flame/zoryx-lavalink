@@ -115,6 +115,10 @@ module.exports = {
                 commandName = "add_favorite";
             }
 
+            if (interaction.customId === "delete_favorite") {
+                commandName = "add_favorite";
+            }
+
             const command = client.commands.get(commandName);
 
             const { cooldowns } = client;

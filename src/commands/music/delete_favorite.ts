@@ -6,6 +6,7 @@ import { PlayerType } from '../../types/player';
 import { TrackType } from '../../types/track';
 import DatabaseDAO from '../../classes/DatabaseDAO';
 import { getVideoId } from '../../functions/getVideoId';
+import Track from "../../classes/Track";
 
 module.exports = {
     name: 'delete_favorite',
@@ -66,14 +67,29 @@ module.exports = {
     },
     async execute(interaction: ChatInputCommandInteraction) {
 
-        const query = interaction.options.getString('query');
+        let query;
+
+        if (interaction.options && interaction.options.getString('query')) {
+            query = interaction.options.getString('query');
+        }
 
         if (!interaction.guild) {
             return;
         }
 
+        const client = interaction.client as BotClient;
+
+        let player = await getPlayer(client, interaction.guild.id) as PlayerType;
+
         if (!query) {
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Tu dois fournir une vidéo à supprimer des favoris")] });
+            if (player && player.queue && player.queue.current && player.queue.current.info && player.queue.current.info.uri) {
+                if (interaction.deferred || !interaction.replied) {
+                    await interaction.deferReply();
+                }
+                query = player.queue.current?.info.uri as string;
+            } else {
+                return;
+            }
         }
 
         if (query === "invalid_voice_channel_-1") {
@@ -87,10 +103,6 @@ module.exports = {
         if (query === "error_occurred_-1") {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Une erreur est survenue lors de la recherche de la vidéo")] });
         }
-
-        const client = interaction.client as BotClient;
-
-        let player = await getPlayer(client, interaction.guild.id) as PlayerType;
 
         if (!interaction.channel?.id) {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "❌ Pas de channel valide")] });
@@ -129,7 +141,7 @@ module.exports = {
         }
 
         try {
-            await databaseDAO.deleteFavoriteTrack(interaction.user.id, videoId);
+            await databaseDAO.deleteFavoriteTrack(interaction.user.id, new Track(interaction.user.id, videoId, track.info.title, track.info.uri, null, track.info.sourceName, track.info.artworkUrl));
             return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ La vidéo **${track.info.title}** a été supprimée de vos favoris`).setColor("Green").setImage(track.info.artworkUrl)] });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);

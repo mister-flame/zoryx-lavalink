@@ -47,12 +47,17 @@ const playerButtons = new ActionRowBuilder<ButtonBuilder>()
     );
 
 
-    const playerButtons2 = new ActionRowBuilder<ButtonBuilder>()
+const playerButtons2 = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
         new ButtonBuilder()
             .setCustomId("add_favorite")
             .setEmoji("❤️")
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Success)
+            .setDisabled(false),
+        new ButtonBuilder()
+            .setCustomId("delete_favorite")
+            .setEmoji("💔")
+            .setStyle(ButtonStyle.Danger)
             .setDisabled(false),
     );
 

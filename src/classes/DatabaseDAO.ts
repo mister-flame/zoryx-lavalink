@@ -136,7 +136,7 @@ class DatabaseDAO {
     public async addFavoriteTrack(track: Track): Promise<void> {
 
         if (await this.getFavoriteTrack(track.getUserId(), track.getTrackId())) {
-            throw new Error(`Track with id ${track.getTrackId()} is already in the favorite tracks of this user.`);
+            throw new Error(`La musique : \`${track.getTitle()}\` est déjà présente dans la liste de vos musiques favorites.`);
         }
 
         const query = 'INSERT INTO favorite_tracks (userId, trackId, title, url, addedAt, platform, thumbnailUrl) VALUES ($1, $2, $3, $4, current_date, $5, $6)';
@@ -157,14 +157,14 @@ class DatabaseDAO {
      * @returns a promise resolving when the favorite track is removed
      */
 
-    public async deleteFavoriteTrack(userId: string, trackId: string): Promise<void> {
+    public async deleteFavoriteTrack(userId: string, track: Track): Promise<void> {
 
-        if (!await this.getFavoriteTrack(userId, trackId)) {
-            throw new Error(`Track with id ${trackId} is not in the favorite tracks of this user.`);
+        if (!(await this.getFavoriteTrack(userId, track.getTrackId()))) {
+            throw new Error(`La musique : \`${track.getTitle()}\` n'est pas présente dans la liste de vos musiques favorites.`);
         }
 
         const query = 'DELETE FROM favorite_tracks WHERE userId = $1 AND trackId = $2';
-        const values = [userId, trackId];
+        const values = [userId, track.getTrackId()];
 
         try {
             await this.pool.query(query, values);
