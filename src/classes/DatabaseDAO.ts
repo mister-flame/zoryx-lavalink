@@ -113,16 +113,21 @@ class DatabaseDAO {
      * @returns the track with the title or nothing if it doesn't exist
      */
 
-        public async getFavoriteTrackFromTitle(userId: string, title: string): Promise<Track | undefined> {
+        public async getFavoriteTracksFromTitle(userId: string, title: string): Promise<Track[] | undefined> {
         const query = "SELECT * FROM favorite_tracks WHERE userId = $1 AND LOWER(title) LIKE CONCAT(LOWER($2), '%')";
         const values = [userId, title];
 
         try {
             const result = await this.pool.query(query, values);
-            const row = result.rows[0];
 
-            if (row) {
-                return new Track(row.userid, row.trackid, row.title, row.url, row.addedat, row.platform, row.thumbnailurl);
+            const tracks = [];
+
+            for (const row of result.rows) {
+                tracks.push(new Track(row.userid, row.trackid, row.title, row.url, row.addedat, row.platform, row.thumbnailurl));
+            }
+
+            if (tracks.length > 0) {
+                return tracks;
             } else {
                 return undefined;
             }

@@ -12,7 +12,38 @@ module.exports = {
     name: 'delete_favorite',
     cooldown: 10,
     data: new SlashCommandBuilder().setName('delete_favorite').setDescription('Supprimer une vidéo des favoris')
-        .addStringOption((option) => option.setName('query').setDescription('La vidéo à supprimer des favoris').setRequired(true)),
+        .addStringOption((option) => option.setName('query').setAutocomplete(true).setDescription('La vidéo à supprimer des favoris').setRequired(true)),
+    async autocomplete(interaction: AutocompleteInteraction) {
+
+        if (!interaction.guild) {
+            return;
+        }
+
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+
+        if (!member.voice.channel) {
+            return interaction.respond([{ name: "⚠️ Tu dois être en vocal pour utiliser cette commande", value: "invalid_voice_channel_-1" }]);
+        }
+
+        const focusedValue = interaction.options.getFocused();
+
+        if (!focusedValue) {
+            return interaction.respond([]);
+        }
+
+        const databaseDAO = new DatabaseDAO();
+
+        const tracks = await databaseDAO.getFavoriteTracksFromTitle(interaction.user.id, focusedValue);
+
+        if (!tracks) {
+            return interaction.respond([]);
+        }
+
+        return interaction.respond(tracks.map((track) => ({
+            name: typeof track.getTitle === 'function' ? track.getTitle() : track.getUrl(),
+            value: typeof track.getUrl === 'function' ? track.getUrl() : String(track)
+        })));
+    },
     async execute(interaction: ChatInputCommandInteraction) {
 
         let query;
@@ -74,14 +105,14 @@ module.exports = {
             await databaseDAO.createUser(interaction.user.id);
         }
 
-        let tempTrack = await databaseDAO.getFavoriteTrackFromTitle(interaction.user.id, query) as Track;
+        let tempTracks = await databaseDAO.getFavoriteTracksFromTitle(interaction.user.id, query) as Track[];
 
-        if (!tempTrack) {
+        if (!tempTracks) {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")] });
         }
 
-        const track = (await player.search(tempTrack.getUrl(), {
-            source: tempTrack.getPlatform(),
+        const track = (await player.search(tempTracks[0].getUrl(), {
+            source: tempTracks[0].getPlatform(),
         })).tracks[0] as TrackType;
 
         if (found == false) {

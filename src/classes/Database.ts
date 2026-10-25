@@ -3,7 +3,6 @@
 import { Pool } from "pg";
 import type { PoolConfig } from "pg";
 import type { BotConfig } from "../types/index";
-import { Database } from "sqlite3";
 const config = require("../util/config") as BotConfig;
 
 if (!config.token || !config.clientId) {

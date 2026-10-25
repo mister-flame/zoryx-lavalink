@@ -7,8 +7,6 @@ import { BotClient, BotConfig } from '../../types';
 import { PlayerType } from '../../types/player';
 import { TrackType } from '../../types/track';
 import DatabaseDAO from '../../classes/DatabaseDAO';
-import Track from '../../classes/Track';
-import { getVideoId } from '../../functions/getVideoId';
 
 const config = require("../../util/config") as BotConfig;
 
@@ -22,9 +20,31 @@ module.exports = {
     name: 'play',
     cooldown: 10,
     data: new SlashCommandBuilder().setName('play').setDescription('Jouer une vidéo depuis YouTube ou d\'autres plateformes supportées!')
-        .addStringOption((option) => option.setName('query').setDescription('La vidéo à jouer').setAutocomplete(true))
-        .addUserOption((option) => option.setName("utilisateur").setDescription("Jouer les musiques favorites de cet utilisateur")),
+        .addUserOption((option) => option.setName("utilisateur").setDescription("Jouer les musiques favorites de cet utilisateur"))
+        .addStringOption((option) => option.setName('query').setDescription('Une vidéo parmi les favorites ou depuis une autre plateforme').setAutocomplete(true)),
     async autocomplete(interaction: AutocompleteInteraction) {
+
+        const focusedValue = interaction.options.getFocused();
+
+        if (!focusedValue) {
+            return interaction.respond([])
+        }
+
+        if (interaction.options.get("utilisateur") && interaction.options.get("utilisateur")?.value != null) {
+            const user = interaction.options.get("utilisateur")?.value as string;
+            const databaseDAO = new DatabaseDAO();
+
+            const tracks = await databaseDAO.getFavoriteTracksFromTitle(user, focusedValue);
+
+            if (!tracks || tracks.length < 0) {
+                return interaction.respond([]);
+            }
+
+            return interaction.respond(tracks.map((track) => ({
+                name: typeof track.getTitle === 'function' ? track.getTitle() : track.getTitle(),
+                value: typeof track.getTitle === 'function' ? track.getTitle() : String(track)
+            })));
+        }
 
         if (!interaction.guild) {
             return;
@@ -34,12 +54,6 @@ module.exports = {
 
         if (!member.voice.channel) {
             return interaction.respond([{ name: "⚠️ Tu dois être en vocal pour utiliser cette commande", value: "invalid_voice_channel_-1" }]);
-        }
-
-        const focusedValue = interaction.options.getFocused();
-
-        if (!focusedValue) {
-            return interaction.respond([]);
         }
 
         try {
@@ -136,14 +150,16 @@ module.exports = {
 
         if (query && user) {
             const databaseDAO = new DatabaseDAO();
-            const tempTrack = await databaseDAO.getFavoriteTrackFromTitle(user?.id, query);
+            const tempTracks = await databaseDAO.getFavoriteTracksFromTitle(user?.id, query);
 
-            if (!tempTrack) {
+            console.log(user.id);
+
+            if (!tempTracks) {
                 return interaction.editReply({ embeds: [createUserEmbed(interaction, `⚠️ Aucun résultat trouvé pour \`${query}\` dans les favoris de <@${user.id}>.`)] });
             }
 
-            let track = (await player.search(tempTrack.getUrl(), {
-                source: tempTrack.getPlatform() as "youtube" | "spotify" | "soundcloud",
+            let track = (await player.search(tempTracks[0].getUrl(), {
+                source: tempTracks[0].getPlatform() as "youtube" | "spotify" | "soundcloud",
             })).tracks[0] as TrackType;
 
             track.info.requester = interaction.user;
@@ -190,7 +206,7 @@ module.exports = {
                 player.mainMessage.edit({ embeds: [embed] });
             }
 
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ La musique \`${tempTrack.getTitle()}\` de <@${user?.id}> à été rajouté dans la file !`).setColor("Green")] });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ La musique \`${tempTracks[0].getTitle()}\` de <@${user?.id}> à été rajouté dans la file !`).setColor("Green")] });
         }
 
         if (!query && user) {
