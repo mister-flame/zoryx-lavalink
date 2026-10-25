@@ -190,7 +190,7 @@ module.exports = {
                 player.mainMessage.edit({ embeds: [embed] });
             }
 
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ La musique \`${query}\` de <@${user?.id}> à été rajouté dans la file !`).setColor("Green")] });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ La musique \`${tempTrack.getTitle()}\` de <@${user?.id}> à été rajouté dans la file !`).setColor("Green")] });
         }
 
         if (!query && user) {
