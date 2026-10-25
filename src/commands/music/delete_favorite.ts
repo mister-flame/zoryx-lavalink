@@ -31,7 +31,7 @@ module.exports = {
 
         if (!query) {
             if (player && player.queue && player.queue.current && player.queue.current.info && player.queue.current.info.uri) {
-                if (interaction.deferred || !interaction.replied) {
+                if (!interaction.deferred || !interaction.replied) {
                     await interaction.deferReply();
                 }
                 query = player.queue.current?.info.uri as string;
