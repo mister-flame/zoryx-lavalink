@@ -107,6 +107,32 @@ class DatabaseDAO {
     }
 
     /**
+     * Returns a track from the database who matches with the searchen title
+     * @param userId the id of user who have this track
+     * @param title the title of the track
+     * @returns the track with the title or nothing if it doesn't exist
+     */
+
+        public async getFavoriteTrackFromTitle(userId: string, title: string): Promise<Track | undefined> {
+        const query = "SELECT * FROM favorite_tracks WHERE userId = $1 AND LOWER(title) LIKE CONCAT(LOWER($2), '%')";
+        const values = [userId, title];
+
+        try {
+            const result = await this.pool.query(query, values);
+            const row = result.rows[0];
+
+            if (row) {
+                return new Track(row.userid, row.trackid, row.title, row.url, row.addedat, row.platform, row.thumbnailurl);
+            } else {
+                return undefined;
+            }
+        } catch (error) {
+            console.error('Error fetching favorite track:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Creates a new user in the database.
      * @param userId the id of the user to create
      * @returns a promise resolving when the user is created

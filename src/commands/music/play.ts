@@ -138,6 +138,65 @@ module.exports = {
             }) as PlayerType;
         }
 
+        if (query && user) {
+            const databaseDAO = new DatabaseDAO();
+            const tempTrack = await databaseDAO.getFavoriteTrackFromTitle(user?.id, query);
+
+            if (!tempTrack) {
+                return interaction.editReply({ embeds: [createUserEmbed(interaction, `⚠️ Aucun résultat trouvé pour \`${query}\` dans les favoris de <@${user.id}>.`)] });
+            }
+
+            let track = (await player.search(tempTrack.getUrl(), {
+                source: tempTrack.getPlatform() as "youtube" | "spotify" | "soundcloud",
+            })).tracks[0] as TrackType;
+
+            track.info.requester = interaction.user;
+            track.info.requestTimestamp = Date.now();
+
+            if (track.sourceName === "youtube") {
+                const newArtworkUrl = await getBestThumbnail(track.info.identifier);
+                track.info.artworkUrl = newArtworkUrl || track.info.artworkUrl;
+            }
+
+            await player.queue.add(track);
+
+            if (!player.playing) player.play();
+
+            const node = player.node;
+            if (!node || !node.connected) {
+                node.connect();
+            }
+
+            if (!player.connected) player.connect();
+
+            if ((player.mainMessage && player.mainMessage.embeds.length > 0) && interaction.channel && interaction.channel instanceof TextChannel && player.mainMessage.editable) {
+
+                let emojiRepeat;
+
+                switch (player.repeatMode) {
+                    case "track":
+                        emojiRepeat = "🔂";
+                        break;
+                    case "queue":
+                        emojiRepeat = "🔁";
+                        break;
+                    case "off":
+                        emojiRepeat = "❌";
+                        break;
+                }
+
+                const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
+
+                if (player.queue.current.info.requester) {
+                    embed.setFooter({ text: `Demandé par ${player.queue.current.info.requester.username} • Loop : ${emojiRepeat} • ${player.queue.tracks.length + 1} morceaux`, iconURL: player.queue.current.info.requester.displayAvatarURL() });
+                }
+
+                player.mainMessage.edit({ embeds: [embed] });
+            }
+
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ La musique \`${query}\` de <@${user?.id}> à été rajouté dans la file !`).setColor("Green")] });
+        }
+
         if (!query && user) {
             const databaseDAO = new DatabaseDAO();
             const tracks = await databaseDAO.getFavoriteTracks(user?.id);
