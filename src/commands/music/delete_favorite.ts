@@ -40,8 +40,8 @@ module.exports = {
         }
 
         return interaction.respond(tracks.map((track) => ({
-            name: typeof track.getTitle === 'function' ? track.getTitle() : track.getUrl(),
-            value: typeof track.getUrl === 'function' ? track.getUrl() : String(track)
+            name: typeof track.getTitle === 'function' ? track.getTitle() : track.getTitle(),
+            value: typeof track.getTitle === 'function' ? track.getTitle() : String(track)
         })));
     },
     async execute(interaction: ChatInputCommandInteraction) {
