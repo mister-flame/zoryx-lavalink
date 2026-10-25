@@ -92,12 +92,8 @@ module.exports = {
             return;
         }
 
-        if (!user) {
+        if (!query && !user) {
             user = interaction.user;
-        }
-
-        if (query && user) {
-            user = null;
         }
 
         const member = await interaction.guild.members.fetch(interaction.user.id);
