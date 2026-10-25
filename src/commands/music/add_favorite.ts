@@ -7,6 +7,7 @@ import { TrackType } from '../../types/track';
 import DatabaseDAO from '../../classes/DatabaseDAO';
 import Track from '../../classes/Track';
 import { getVideoId } from '../../functions/getVideoId';
+import { getBestThumbnail } from '../../functions/getBestThumbnail';
 
 module.exports = {
     name: 'add_favorite',
@@ -90,6 +91,10 @@ module.exports = {
 
         if (!videoId) {
             return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Impossible d'extraire l'ID de la vidéo")] });
+        }
+
+        if (track.info.sourceName == 'youtube') {
+            track.info.artworkUrl = await getBestThumbnail(videoId) as string;
         }
 
         try {
