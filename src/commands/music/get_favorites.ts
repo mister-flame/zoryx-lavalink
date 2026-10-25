@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, Message, ButtonInteraction } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, Message, ButtonInteraction, User } from 'discord.js';
 import { createUserEmbed } from '../../functions/createUserEmbed';
 import { BotConfig } from '../../types';
 import DatabaseDAO from '../../classes/DatabaseDAO';
@@ -15,22 +15,31 @@ const { COLOR_EMBED } = config;
 module.exports = {
     name: 'get_favorites',
     cooldown: 10,
-    data: new SlashCommandBuilder().setName('get_favorites').setDescription('Obtenir ses vidéos favorites'),
+    data: new SlashCommandBuilder().setName('get_favorites').setDescription('Obtenir les vidéos favorites d\'un utilisateur').addUserOption((option) => option.setName("utilisateur").setDescription("L'utilisateur ciblé")),
     async execute(interaction: ChatInputCommandInteraction) {
+
+        let user = interaction.options.getUser("utilisateur") as User;
+
+        if (!user) {
+            user = interaction.user;
+        }
+
+        if (user.bot) {
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Cette commande ne marche pas sur les bots.")] });
+        }
 
         const databaseDAO = new DatabaseDAO();
 
-        const user = await databaseDAO.getUser(interaction.user.id);
+        const dbUser = await databaseDAO.getUser(user.id);
 
-        if (!user) {
-            await databaseDAO.createUser(interaction.user.id);
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Vous n'avez pas encore de favoris. Utilisez la commande `/add_favorite` pour en ajouter.")] });
+        if (!dbUser) {
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Cet utilisateur n'a pas encore de favoris. Utilisez la commande `/add_favorite` pour en ajouter.")] });
         }
 
-        const favoriteTracks = await databaseDAO.getFavoriteTracks(interaction.user.id);
+        const favoriteTracks = await databaseDAO.getFavoriteTracks(user.id);
 
         if (!favoriteTracks || favoriteTracks.length === 0) {
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Vous n'avez pas encore de favoris. Utilisez la commande `/add_favorite` pour en ajouter.")] });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Cet utilisateur n'a pas encore de favoris. Utilisez la commande `/add_favorite` pour en ajouter.")] });
         }
 
         let pageButtons = new ActionRowBuilder<ButtonBuilder>()
@@ -51,10 +60,10 @@ module.exports = {
 
         let favoriteEmbed = new EmbedBuilder()
             .setColor(COLOR_EMBED)
-            .setTitle("❤️ Liste de vos musiques favorites :")
+            .setAuthor({ name: "❤️ Liste de ses musiques favorites :", iconURL: user.displayAvatarURL() })
             .setThumbnail(await favoriteTracks[0].getThumbnailUrl())
             .setDescription(favoriteTracks.slice((currentPage - 1) * 10, currentPage * 10).map((track, index) => `\`${(currentPage - 1) * 10 + index + 1}.\` [${track.getTitle()}](${track.getUrl()}), ajouté le \`${Track.convertToDate(track.getAddedAt())}\``).join("\n"))
-            .setFooter({ text: `Demandé par ${interaction.user.username} • ${favoriteTracks.length} favoris • Page ${currentPage}/${Math.ceil(favoriteTracks.length / 10)}`, iconURL: interaction.user.displayAvatarURL() })
+            .setFooter({ text: `Demandé par ${interaction.user.username} • ${favoriteTracks.length} favoris • Page ${currentPage}/${Math.ceil(favoriteTracks.length / 10)}` })
             .setTimestamp(new Date());
 
         let message = await interaction.editReply({ embeds: [favoriteEmbed], components: [pageButtons] }).catch(() => { }) as Message;
@@ -90,7 +99,7 @@ module.exports = {
                 message.edit({ embeds: [favoriteEmbed], components: [pageButtons] })
             }
 
-            favoriteEmbed.setFooter({ text: `Demandé par ${interaction.user.username} • ${favoriteTracks.length} favoris • Page ${currentPage}/${Math.ceil(favoriteTracks.length / 10)}`, iconURL: interaction.user.displayAvatarURL() });
+            favoriteEmbed.setFooter({ text: `Demandé par ${interaction.user.username} • ${favoriteTracks.length} favoris • Page ${currentPage}/${Math.ceil(favoriteTracks.length / 10)}` });
 
             return btn.deferUpdate();
         })

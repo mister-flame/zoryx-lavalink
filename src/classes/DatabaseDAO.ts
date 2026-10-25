@@ -64,7 +64,7 @@ class DatabaseDAO {
      */
 
     public async getFavoriteTracks(userId: string): Promise<Track[]> {
-        const query = 'SELECT * FROM favorite_tracks WHERE userId = $1 ORDER BY addedAt ASC';
+        const query = 'SELECT * FROM favorite_tracks WHERE userId = $1 ORDER BY addedAt DESC';
         const values = [userId];
 
         try {

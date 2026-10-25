@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, MessageFlags, TextChannel, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags, TextChannel, ChatInputCommandInteraction, AutocompleteInteraction, User } from 'discord.js';
 import { getPlayer } from '../../functions/getPlayer';
 import { formatDuration } from '../../functions/formatDuration';
 import { getBestThumbnail } from '../../functions/getBestThumbnail';
@@ -22,7 +22,8 @@ module.exports = {
     name: 'play',
     cooldown: 10,
     data: new SlashCommandBuilder().setName('play').setDescription('Jouer une vidéo depuis YouTube ou d\'autres plateformes supportées!')
-        .addStringOption((option) => option.setName('query').setDescription('La vidéo à jouer').setAutocomplete(true)),
+        .addStringOption((option) => option.setName('query').setDescription('La vidéo à jouer').setAutocomplete(true))
+        .addUserOption((option) => option.setName("utilisateur").setDescription("Jouer les musiques favorites de cet utilisateur")),
     async autocomplete(interaction: AutocompleteInteraction) {
 
         if (!interaction.guild) {
@@ -83,10 +84,20 @@ module.exports = {
     },
     async execute(interaction: ChatInputCommandInteraction) {
 
-        const query = interaction.options.getString('query');
+        const query = interaction.options.getString('query') as string;
+
+        let user = interaction.options.getUser("utilisateur");
 
         if (!interaction.guild) {
             return;
+        }
+
+        if (!user) {
+            user = interaction.user;
+        }
+
+        if (query && user) {
+            user = null;
         }
 
         const member = await interaction.guild.members.fetch(interaction.user.id);
@@ -127,12 +138,12 @@ module.exports = {
             }) as PlayerType;
         }
 
-        if (!query) {
+        if (!query && user) {
             const databaseDAO = new DatabaseDAO();
-            const tracks = await databaseDAO.getFavoriteTracks(interaction.user.id);
+            const tracks = await databaseDAO.getFavoriteTracks(user?.id);
 
             if (!tracks || tracks.length === 0) {
-                return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Vous n'avez pas encore de favoris. Utilisez la commande `/add_favorite` pour en ajouter.")] });
+                return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Cet utilisateur n'a pas encore de musiques favorites.")] });
             }
 
             for (const tempTrack of tracks) {
@@ -160,32 +171,36 @@ module.exports = {
 
             if (!player.connected) player.connect();
 
-                    if ((player.mainMessage && player.mainMessage.embeds.length > 0) && interaction.channel && interaction.channel instanceof TextChannel && player.mainMessage.editable) {
+            if ((player.mainMessage && player.mainMessage.embeds.length > 0) && interaction.channel && interaction.channel instanceof TextChannel && player.mainMessage.editable) {
 
-            let emojiRepeat;
+                let emojiRepeat;
 
-            switch (player.repeatMode) {
-                case "track":
-                    emojiRepeat = "🔂";
-                    break;
-                case "queue":
-                    emojiRepeat = "🔁";
-                    break;
-                case "off":
-                    emojiRepeat = "❌";
-                    break;
+                switch (player.repeatMode) {
+                    case "track":
+                        emojiRepeat = "🔂";
+                        break;
+                    case "queue":
+                        emojiRepeat = "🔁";
+                        break;
+                    case "off":
+                        emojiRepeat = "❌";
+                        break;
+                }
+
+                const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
+
+                if (player.queue.current.info.requester) {
+                    embed.setFooter({ text: `Demandé par ${player.queue.current.info.requester.username} • Loop : ${emojiRepeat} • ${player.queue.tracks.length + tracks.length} morceaux`, iconURL: player.queue.current.info.requester.displayAvatarURL() });
+                }
+
+                player.mainMessage.edit({ embeds: [embed] });
             }
 
-            const embed = EmbedBuilder.from(player.mainMessage.embeds[0]);
-
-            if (player.queue.current.info.requester) {
-                embed.setFooter({ text: `Demandé par ${player.queue.current.info.requester.username} • Loop : ${emojiRepeat} • ${player.queue.tracks.length + tracks.length} morceaux`, iconURL: player.queue.current.info.requester.displayAvatarURL() });
-            }
-
-            player.mainMessage.edit({ embeds: [embed] });
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ Toutes les musiques favorites ont été ajoutées à la file d'attente ! (${tracks.length} musiques)`).setColor("Green")] });
         }
 
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, `✅ Toutes vos musiques favorites (${tracks.length}) ont été ajoutées à la file d'attente !`).setColor("Green")] });
+        if (!query && !user) {
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Veuillez préciser une musique ou un utilisateur")] });
         }
 
         let track = (await player.search(query, {
