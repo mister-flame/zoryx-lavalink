@@ -68,22 +68,24 @@ module.exports = {
             }) as PlayerType;
         }
 
-        let track = (await player.search(query, {
-            source: "youtube",
-        })).tracks[0] as TrackType;
-
-        if (found == false) {
-            player.destroy()
-        }
-
-        if (!track) {
-            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")] });
-        }
-
         const databaseDAO = new DatabaseDAO();
 
         if (!(await databaseDAO.getUser(interaction.user.id))) {
             await databaseDAO.createUser(interaction.user.id);
+        }
+
+        let tempTrack = await databaseDAO.getFavoriteTrackFromTitle(interaction.user.id, query) as Track;
+
+        if (!tempTrack) {
+            return interaction.editReply({ embeds: [createUserEmbed(interaction, "⚠️ Aucune vidéo trouvée pour cette recherche")] });
+        }
+
+        const track = (await player.search(tempTrack.getUrl(), {
+            source: tempTrack.getPlatform(),
+        })).tracks[0] as TrackType;
+
+        if (found == false) {
+            player.destroy()
         }
 
         const videoId = await getVideoId(track.info.uri);
